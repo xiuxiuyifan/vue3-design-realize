@@ -181,8 +181,16 @@ export function computed(getter) {
 
 // 实现 watch
 export function watch(source, cb) {
+  let getter
+  // 监测 watch 传进来的第一个参数是  function 还是对象？？
+  if (typeof source === 'function') {
+    getter = source
+  } else {
+    // 如果是对象就用函数重新包一下
+    getter = () => traverse(source)
+  }
   effect(() => {
-    traverse(source)
+    getter()
   }, {
     scheduler: () => {
       // 当数据变化的时候，触发回调函数

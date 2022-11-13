@@ -9,6 +9,13 @@ import {
   watch
 } from './vue'
 
+// import {
+//   effect,
+//   reactive,
+//   computed,
+//   watch
+// } from 'vue'
+
 
 
 // effect(
@@ -97,11 +104,23 @@ import {
 // obj.foo++
 
 
+// const data = { foo: 1, bar: 2 }
+// const obj = reactive(data)
+
+
+//TODO这样貌似会多执行一次
 const data = { foo: 1, bar: 2 }
 const obj = reactive(data)
 
+
 watch(obj, () => {
-  console.log('watch 到变化了', obj.foo)
+  console.log('watch 到变化了1', obj.foo)
+})
+obj.foo++
+
+
+watch(() => obj.foo, () => {
+  console.log('watch 到变化了2', obj.foo)
 })
 
 obj.foo++

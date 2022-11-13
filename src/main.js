@@ -72,13 +72,25 @@ import {
 
 
 
+// const data = { foo: 1, bar: 2 }
+// const obj = reactive(data)
+// const sumRes = computed(() => obj.foo + obj.bar)
+// console.log(sumRes.value)  // 3
+// console.log(sumRes.value)  // 3
+// // 修改 obj.foo
+// obj.foo++
+// // 再次访问，得到的仍然是 3，但预期结果应该是 4
+// console.log(sumRes.value)  // 3
+
+
+
+// 它体现在当我们在另外一个 effect 中读取计算属性的值时：
 const data = { foo: 1, bar: 2 }
 const obj = reactive(data)
 const sumRes = computed(() => obj.foo + obj.bar)
-console.log(sumRes.value)  // 3
-console.log(sumRes.value)  // 3
-// 修改 obj.foo
+effect(() => {
+  // 在该副作用函数中读取 sumRes.value
+  console.log(sumRes.value)
+})
+// 修改 obj.foo 的值
 obj.foo++
-// 再次访问，得到的仍然是 3，但预期结果应该是 4
-console.log(sumRes.value)  // 3
-

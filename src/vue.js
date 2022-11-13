@@ -158,6 +158,9 @@ export function computed(getter) {
     scheduler: () => {
       // 当数据发生变化的时候，再把标识符设置为 脏的，表示要重新执行 effect 函数
       dirty = true
+      // 当计算属性依赖的响应式数据变化的时候 ，手动 调用 trigger函数进行 依赖的触发
+      // 感知到 计算属性依赖的值发生了变化，
+      trigger(obj, 'value')
     }
   })
 
@@ -168,6 +171,8 @@ export function computed(getter) {
         value = effectFn()
         dirty = false
       }
+      // 当读取 value 属性的时候，手动调用 track 函数进行追踪
+      track(obj, 'value')
       return value
     }
   }

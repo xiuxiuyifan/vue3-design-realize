@@ -148,14 +148,27 @@ export function flushJob() {
 
 // 让用户传递一个 getter 函数进来
 export function computed(getter) {
+
+  // value 用来缓存上一次的值
+  let value
+  // dirty 表示 脏的 ，当只有脏的的时候，才会从新计算，否则直接返回上一次的值
+  let dirty = true
   const effectFn = effect(getter, {
-    lazy: true
+    lazy: true,
+    scheduler: () => {
+      // 当数据发生变化的时候，再把标识符设置为 脏的，表示要重新执行 effect 函数
+      dirty = true
+    }
   })
 
   const obj = {
     // 当用户读取  .value 属性的时候 自动帮我们执行 effectFn 函数 ，并且将返回值返回
     get value() {
-      return effectFn()
+      if (dirty) {
+        value = effectFn()
+        dirty = false
+      }
+      return value
     }
   }
   return obj

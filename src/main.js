@@ -9,7 +9,6 @@ import {
 } from './vue'
 
 
-const obj = reactive({ count: 1 })
 
 // effect(
 //   () => {
@@ -53,16 +52,33 @@ const obj = reactive({ count: 1 })
 // 下面我们就有来使用一下这个 computed 函数
 
 
-const val = computed(() => {
-  return obj.count + 1
-})
+// const val = computed(() => {
+//   console.log('hihi')
+//   return obj.count + 1
+// })
 
 
-console.log(val.value)
+// console.log(val.value)
 
-// 当obj.count 发生变化的时候，会重新执行 computed 里面的 getter 函数。
+// // 当obj.count 发生变化的时候，会重新执行 computed 里面的 getter 函数。
 
-obj.count = 10
+// obj.count = 10
 
-console.log(val.value)
+// console.log(val.value)
+// console.log(val.value)
+// console.log(val.value)
+// console.log(val.value)
+// console.log(val.value)
+
+
+
+const data = { foo: 1, bar: 2 }
+const obj = reactive(data)
+const sumRes = computed(() => obj.foo + obj.bar)
+console.log(sumRes.value)  // 3
+console.log(sumRes.value)  // 3
+// 修改 obj.foo
+obj.foo++
+// 再次访问，得到的仍然是 3，但预期结果应该是 4
+console.log(sumRes.value)  // 3
 

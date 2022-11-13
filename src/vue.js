@@ -180,14 +180,29 @@ export function computed(getter) {
 }
 
 // 实现 watch
-
 export function watch(source, cb) {
-  effect(() => source.foo, {
+  effect(() => {
+    traverse(source)
+  }, {
     scheduler: () => {
       // 当数据变化的时候，触发回调函数
       cb()
     }
   })
+}
+
+// 用来递归访问对象上的属性
+export function traverse(value, seen = new Set()) {
+  // 判断传进来的值的类型 , 如果不符合要求，则直接 return
+  if (typeof value !== 'object' || typeof value === null || seen.has(value)) return
+  seen.add(value)
+  //说明是对象, 就遍历这个对象 使用 for in
+  for (let key in value) {
+    // 递归遍历
+    traverse(value[key], seen)
+  }
+  // 把传进来的值 返回
+  return value
 }
 
 

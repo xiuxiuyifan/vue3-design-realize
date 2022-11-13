@@ -6,7 +6,9 @@ let activeEffect
 
 function effect(fn) {
   const effectFn = () => {
-    activeEffect = fn
+    // 在触发 get 之前先清除
+    cleanup(effectFn)
+    activeEffect = effectFn
     // 调用 effect 函数
     fn()
   }
@@ -61,7 +63,8 @@ function track(target, key) {
   }
   // 将真实的依赖信息添加到 deps中去
   deps.add(activeEffect)
-  // 
+  // 让effect 记录所有的依赖集合
+  activeEffect.deps.push(deps)
 }
 
 // 触发依赖
@@ -74,10 +77,23 @@ function trigger(target, key) {
 
   // 再找 键对应 的 set 里面存放的就是 effect
   let effects = targetMap.get(key)
+
+  // 新构造一个 set 用来遍历
+  let effectToRun = new Set(effects)
   // 遍历effect 并执行
-  effects && effects.forEach(effect => {
+  effectToRun && effectToRun.forEach(effect => {
     effect()
   })
+}
+
+function cleanup(effectFn) {
+  // 遍历 effectFn.deps数组
+  for (let i = 0; i < effectFn.deps.length; i++) {
+    const deps = effectFn.deps[i]
+    deps.delete(effectFn)
+  }
+  // 最后重置 deps数组的长度
+  effectFn.deps.length = 0
 }
 
 effect(() => {
@@ -92,3 +108,8 @@ setTimeout(() => {
 setTimeout(() => {
   obj.text = 'hello Vue3'
 }, 3000);
+
+console.log(weakmap)
+
+
+// 记录要点， 如果我们不做依赖的清理，那么 deps 里面就会被收集多次，

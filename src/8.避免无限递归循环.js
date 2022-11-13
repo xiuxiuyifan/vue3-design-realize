@@ -87,8 +87,13 @@ function trigger(target, key) {
   // 新构造一个 set 用来遍历
   let effectToRun = new Set(effects)
   // 遍历effect 并执行
-  effectToRun && effectToRun.forEach(effect => {
-    effect()
+  effects && effects.forEach(effectFn => {
+    if (activeEffect !== effectFn) {
+      effectToRun.add(effectFn)
+    }
+  })
+  effectToRun.forEach(effectFn => {
+    effectFn()
   })
 }
 
@@ -115,3 +120,4 @@ console.log(weakmap)
 
 // 解决的问题，
 
+// 要判断 trigger 执行的副作用函数与当前执行的副作用函数相同，则不触发执行

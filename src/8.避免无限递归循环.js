@@ -85,7 +85,7 @@ function trigger(target, key) {
   let effects = targetMap.get(key)
 
   // 新构造一个 set 用来遍历
-  let effectToRun = new Set(effects)
+  let effectToRun = new Set()
   // 遍历effect 并执行
   effects && effects.forEach(effectFn => {
     if (activeEffect !== effectFn) {

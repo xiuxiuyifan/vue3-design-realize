@@ -26,13 +26,24 @@ const obj = reactive({ count: 1 })
 // );
 
 
+// const effectFn = effect(() => {
+//   console.log(obj.count)
+// }, {
+//   lazy: true
+// })
+
+// // 手动执行返回出来的函数
+// effectFn()
+
+// 我们发现这样执行的意义并不是很大，
+// 假设，我们手动执行完这个函数之后可以拿到他的返回值。是不是会更有用呢？？
+
 const effectFn = effect(() => {
-  console.log(obj.count)
+  return obj.count + 1
 }, {
   lazy: true
 })
 
 // 手动执行返回出来的函数
-effectFn()
-
-
+const value = effectFn()
+console.log(value)

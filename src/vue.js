@@ -13,11 +13,12 @@ export function effect(fn, options = {}) {
     // 在调用真实 的 effect 函数之前 将 effectFn压入栈中
     effectStack.push(effectFn)
     // 调用 effect 函数
-    fn()
+    const res = fn()
     // 当调用完 effect 函数之后，载把 activeEffect 还原
     effectStack.pop()  // 丢掉上一次的 effectFn
     // 取栈顶的 effectFn赋值给 activeEffect
     activeEffect = effectStack[effectStack.length - 1]
+    return res
   }
 
   // 将 options 挂载到 effectFn 身上
@@ -94,7 +95,7 @@ export function trigger(target, key) {
   let effects = targetMap.get(key)
 
   // 新构造一个 set 用来遍历
-  let effectToRun = new Set(effects)
+  let effectToRun = new Set()
   // 遍历effect 并执行
   effects && effects.forEach(effectFn => {
     if (activeEffect !== effectFn) {

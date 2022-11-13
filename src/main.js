@@ -5,7 +5,8 @@ import {
   flushJob,
   trigger,
   track,
-  computed
+  computed,
+  watch
 } from './vue'
 
 
@@ -85,12 +86,22 @@ import {
 
 
 // 它体现在当我们在另外一个 effect 中读取计算属性的值时：
+// const data = { foo: 1, bar: 2 }
+// const obj = reactive(data)
+// const sumRes = computed(() => obj.foo + obj.bar)
+// effect(() => {
+//   // 在该副作用函数中读取 sumRes.value
+//   console.log(sumRes.value)
+// })
+// // 修改 obj.foo 的值
+// obj.foo++
+
+
 const data = { foo: 1, bar: 2 }
 const obj = reactive(data)
-const sumRes = computed(() => obj.foo + obj.bar)
-effect(() => {
-  // 在该副作用函数中读取 sumRes.value
-  console.log(sumRes.value)
+
+watch(obj, () => {
+  console.log('watch 到变化了', obj.foo)
 })
-// 修改 obj.foo 的值
+
 obj.foo++

@@ -179,7 +179,16 @@ export function computed(getter) {
   return obj
 }
 
+// 实现 watch
 
+export function watch(source, cb) {
+  effect(() => source.foo, {
+    scheduler: () => {
+      // 当数据变化的时候，触发回调函数
+      cb()
+    }
+  })
+}
 
 
 

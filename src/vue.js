@@ -146,6 +146,23 @@ export function flushJob() {
     })
 }
 
+// 让用户传递一个 getter 函数进来
+export function computed(getter) {
+  const effectFn = effect(getter, {
+    lazy: true
+  })
+
+  const obj = {
+    // 当用户读取  .value 属性的时候 自动帮我们执行 effectFn 函数 ，并且将返回值返回
+    get value() {
+      return effectFn()
+    }
+  }
+  return obj
+}
+
+
+
 
 
 

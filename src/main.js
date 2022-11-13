@@ -4,7 +4,8 @@ import {
   jobQueue,
   flushJob,
   trigger,
-  track
+  track,
+  computed
 } from './vue'
 
 
@@ -38,12 +39,30 @@ const obj = reactive({ count: 1 })
 // 我们发现这样执行的意义并不是很大，
 // 假设，我们手动执行完这个函数之后可以拿到他的返回值。是不是会更有用呢？？
 
-const effectFn = effect(() => {
+// const effectFn = effect(() => {
+//   return obj.count + 1
+// }, {
+//   lazy: true
+// })
+
+// // 手动执行返回出来的函数
+// const value = effectFn()
+// console.log(value)
+
+
+// 下面我们就有来使用一下这个 computed 函数
+
+
+const val = computed(() => {
   return obj.count + 1
-}, {
-  lazy: true
 })
 
-// 手动执行返回出来的函数
-const value = effectFn()
-console.log(value)
+
+console.log(val.value)
+
+// 当obj.count 发生变化的时候，会重新执行 computed 里面的 getter 函数。
+
+obj.count = 10
+
+console.log(val.value)
+

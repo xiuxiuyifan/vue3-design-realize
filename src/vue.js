@@ -5,7 +5,7 @@ let activeEffect
 
 let effectStack = [] // 存放 effect 函数的执行栈
 
-function effect(fn, options = {}) {
+export function effect(fn, options = {}) {
   const effectFn = () => {
     // 在触发 get 之前先清除
     cleanup(effectFn)
@@ -24,31 +24,35 @@ function effect(fn, options = {}) {
   effectFn.options = options
   // 用来存贮包含所有副作用的集合。
   effectFn.deps = []
-  // 执行副作用函数6
-  effectFn()
+  // 当 lazy 参数为 true 的时候不执行 effectFn 函数
+  if (!options.lazy) {
+    // 执行副作用函数
+    effectFn()
+  }
+  // 将副作用函数作为返回值 返回
+  return effectFn
 }
 
 
 const weakmap = new WeakMap()
 
-const data = {
-  count: 1,
+export function reactive(data) {
+  const proxy = new Proxy(data, {
+    get(target, key, receiver) {
+      // 触发依赖收集
+      track(target, key)
+      return Reflect.get(target, key, receiver)
+    },
+    set(target, key, value, receiver) {
+      // 先设置属性
+      let result = Reflect.set(target, key, value, receiver)
+      // 后触发依赖
+      trigger(target, key)
+      return result
+    }
+  })
+  return proxy
 }
-
-const obj = new Proxy(data, {
-  get(target, key, receiver) {
-    // 触发依赖收集
-    track(target, key)
-    return Reflect.get(target, key, receiver)
-  },
-  set(target, key, value, receiver) {
-    // 先设置属性
-    let result = Reflect.set(target, key, value, receiver)
-    // 后触发依赖
-    trigger(target, key)
-    return result
-  }
-})
 
 // {
 //   obj: {
@@ -56,7 +60,7 @@ const obj = new Proxy(data, {
 //   }
 // }
 
-function track(target, key) {
+export function track(target, key) {
   // 如果没有 activeEffect 则直接 return 可能是直接访问的
   if (!activeEffect) return
   // 查找对象是否在依赖中出现过
@@ -79,7 +83,7 @@ function track(target, key) {
 }
 
 // 触发依赖
-function trigger(target, key) {
+export function trigger(target, key) {
   // 从weakmap中找出target的依赖信息
 
   let targetMap = weakmap.get(target)
@@ -108,7 +112,7 @@ function trigger(target, key) {
   })
 }
 
-function cleanup(effectFn) {
+export function cleanup(effectFn) {
   // 遍历 effectFn.deps数组
   for (let i = 0; i < effectFn.deps.length; i++) {
     const deps = effectFn.deps[i]
@@ -120,13 +124,13 @@ function cleanup(effectFn) {
 
 // 通过调度器控制effect函数的执行次数
 
-const jobQueue = new Set()
+export const jobQueue = new Set()
 
 const p = Promise.resolve()
 // 表示是否正在刷新队列
 let isFlushing = false
 
-function flushJob() {
+export function flushJob() {
   // 如果当前队列正在刷新，则什么都不做
   if (isFlushing) return
   isFlushing = true
@@ -145,17 +149,6 @@ function flushJob() {
 
 
 
-effect(function effect1() {
-  console.log(obj.count)
-}, {
-  // 调度器 scheduler 是一个函数， 被调用的时候会传入当前的 effect 函数，让用户可以在，再次触发 trigger函数的时候手动调用
-  scheduler: (fn) => {
-    // 当触发依赖的时候将副作用函数加入到  jsbQueue 中
-    jobQueue.add(fn)
-    // 同时调用刷新任务的函数， 当同步触发多次 scheduler 函数的时候，会在 flushJob 函数中消除掉多余的调用次数
-    flushJob()
-  }
-})
 
 
 

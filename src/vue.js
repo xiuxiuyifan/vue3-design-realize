@@ -205,7 +205,16 @@ export function watch(source, cb, options = {}) {
   }
   const effectFn = effect(() => getter(), {
     lazy: true,
-    scheduler: job
+    scheduler: () => {
+      // 判断参数中 options 中是否含有 flush
+      if (options.flush) {
+        // 在 DOM 更新之后
+        const p = Promise.resolve()
+        p.then(job)
+      } else {
+        job()
+      }
+    }
   })
   // 在后序进行判断
   if (options.immediate) {

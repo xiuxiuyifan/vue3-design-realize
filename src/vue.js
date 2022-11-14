@@ -189,14 +189,22 @@ export function watch(source, cb) {
     // 如果是对象就用函数重新包一下
     getter = () => traverse(source)
   }
-  effect(() => {
-    getter()
-  }, {
+  // 定义新值和老值
+  let oldValue, newValue
+  const effectFn = effect(() => getter(), {
+    lazy: true,
     scheduler: () => {
+      // 当数据发生变化的时候，会重新执行 scheduler 函数
+      newValue = effectFn()
       // 当数据变化的时候，触发回调函数
-      cb()
+      // 将新值和老值，传递给回调函数
+      cb(newValue, oldValue)
+      // 当回调函数执行完成之后，当前的新值也就变成老值了
+      oldValue = newValue
     }
   })
+  // 手动调用effectFn 函数
+  oldValue = effectFn()
 }
 
 // 用来递归访问对象上的属性

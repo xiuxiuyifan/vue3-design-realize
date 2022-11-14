@@ -136,11 +136,47 @@ import {
 
 
 
-const data = { foo: 1, bar: 2 }
+// const data = { foo: 1, bar: 2 }
+// const obj = reactive(data)
+
+// watch(() => obj.foo, (newValue, oldValue) => {
+//   console.log('watch 到变化了', newValue, oldValue)   // 第一次没有老值，所以 oldValue 就是 undefined
+// }, {
+//   immediate: true
+// })
+
+
+
+function ajax(timer, data) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(data)
+    }, timer);
+  })
+}
+
+const data = { num: 3 }
 const obj = reactive(data)
 
-watch(() => obj.foo, (newValue, oldValue) => {
-  console.log('watch 到变化了', newValue, oldValue)   // 第一次没有老值，所以 oldValue 就是 undefined
-}, {
-  immediate: true
+let finishData
+watch(obj, async (newValue, oldValue, onCleanup) => {
+  console.log('触发watch了')
+  let expired = false
+  // 调用 onCleanup 函数 注册一个 过期回调
+  onCleanup(() => {
+    expired = true
+  })
+
+  let res = await ajax(obj.num * 1000, obj.num * 1000)
+  console.log('res', res)
+  if (!expired) {
+    finishData = res
+  }
 })
+
+obj.num--
+obj.num--
+
+setTimeout(() => {
+  console.log('最终的结果', finishData)
+}, 5000);

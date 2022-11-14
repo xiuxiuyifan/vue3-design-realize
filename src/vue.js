@@ -192,14 +192,24 @@ export function watch(source, cb, options = {}) {
   }
   // 定义新值和老值
   let oldValue, newValue
+
+  let onCleanup
+  function onInvalidate(fn) {
+    onCleanup = fn
+  }
+
   // 提取 scheduler 函数为单独的一个函数
   // 因为 scheduler 函数的执行只会发生在数据变化之后，第一次是不会默认执行的
   const job = () => {
     // 当数据发生变化的时候，会重新执行 scheduler 函数
     newValue = effectFn()
+    // 调用回调函数之前，先调用之前存贮下来的清理函数
+    if (onCleanup) {
+      onCleanup()
+    }
     // 当数据变化的时候，触发回调函数
     // 将新值和老值，传递给回调函数
-    cb(newValue, oldValue)
+    cb(newValue, oldValue, onInvalidate)
     // 当回调函数执行完成之后，当前的新值也就变成老值了
     oldValue = newValue
   }

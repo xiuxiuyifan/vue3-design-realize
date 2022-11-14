@@ -126,11 +126,21 @@ import {
 // obj.foo++
 
 
+// const data = { foo: 1, bar: 2 }
+// const obj = reactive(data)
+
+// watch(() => obj.foo, (newValue, oldValue) => {
+//   console.log('watch 到变化了', newValue, oldValue)
+// })
+// obj.foo++
+
+
+
 const data = { foo: 1, bar: 2 }
 const obj = reactive(data)
 
 watch(() => obj.foo, (newValue, oldValue) => {
-  console.log('watch 到变化了', newValue, oldValue)
+  console.log('watch 到变化了', newValue, oldValue)   // 第一次没有老值，所以 oldValue 就是 undefined
+}, {
+  immediate: true
 })
-obj.foo++
-

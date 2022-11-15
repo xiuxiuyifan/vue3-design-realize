@@ -182,18 +182,21 @@ import {
 // }, 5000);
 
 
-const data = {
-  foo: 1,
-  get bar() {
-    return this.foo
-  }
-}
-const p = reactive(data)
+// const data = {
+//   foo: 1,
+//   get bar() {
+//     return this.foo
+//   }
+// }
+// const p = reactive(data)
 
-effect(() => {
-  console.log(p.bar)   //  在访问 bar 的时候，我们也默认访问了 foo 属性
-})
+// effect(() => {
+//   console.log(p.bar)   //  在访问 bar 的时候，我们也默认访问了 foo 属性
+// })
 
-setTimeout(() => {
-  p.foo++    // 如果不使用 reflect 的话则修改的时候  修改的就是 源对象，并没有修改 代理后的 proxy 对象，所以不会触发依赖更新
-}, 2000)
+// setTimeout(() => {
+//   p.foo++    // 如果不使用 reflect 的话则修改的时候  修改的就是 源对象，并没有修改 代理后的 proxy 对象，所以不会触发依赖更新
+// }, 2000)
+
+
+

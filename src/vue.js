@@ -43,14 +43,11 @@ export function reactive(data) {
     get(target, key, receiver) {
       // 触发依赖收集
       track(target, key)
-      // return Reflect.get(target, key, receiver)
-      return target[key]
+      return Reflect.get(target, key, receiver)
     },
     set(target, key, value, receiver) {
       // 先设置属性
-      // let result = Reflect.set(target, key, value, receiver)
-      target[key] = value
-      let result = true
+      let result = Reflect.set(target, key, value, receiver)
       // 后触发依赖
       trigger(target, key)
       return result

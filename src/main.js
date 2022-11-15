@@ -147,36 +147,53 @@ import {
 
 
 
-function ajax(timer, data) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(data)
-    }, timer);
-  })
-}
+// function ajax(timer, data) {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       resolve(data)
+//     }, timer);
+//   })
+// }
 
-const data = { num: 3 }
-const obj = reactive(data)
+// const data = { num: 3 }
+// const obj = reactive(data)
 
-let finishData
-watch(obj, async (newValue, oldValue, onCleanup) => {
-  console.log('触发watch了')
-  let expired = false
-  // 调用 onCleanup 函数 注册一个 过期回调
-  onCleanup(() => {
-    expired = true
-  })
+// let finishData
+// watch(obj, async (newValue, oldValue, onCleanup) => {
+//   console.log('触发watch了')
+//   let expired = false
+//   // 调用 onCleanup 函数 注册一个 过期回调
+//   onCleanup(() => {
+//     expired = true
+//   })
 
-  let res = await ajax(obj.num * 1000, obj.num * 1000)
-  console.log('res', res)
-  if (!expired) {
-    finishData = res
+//   let res = await ajax(obj.num * 1000, obj.num * 1000)
+//   console.log('res', res)
+//   if (!expired) {
+//     finishData = res
+//   }
+// })
+
+// obj.num--
+// obj.num--
+
+// setTimeout(() => {
+//   console.log('最终的结果', finishData)
+// }, 5000);
+
+
+const data = {
+  foo: 1,
+  get bar() {
+    return this.foo
   }
+}
+const p = reactive(data)
+
+effect(() => {
+  console.log(p.bar)   //  在访问 bar 的时候，我们也默认访问了 foo 属性
 })
 
-obj.num--
-obj.num--
-
 setTimeout(() => {
-  console.log('最终的结果', finishData)
-}, 5000);
+  p.foo++    // 如果不使用 reflect 的话则修改的时候  修改的就是 源对象，并没有修改 代理后的 proxy 对象，所以不会触发依赖更新
+}, 2000)

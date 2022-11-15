@@ -199,4 +199,19 @@ import {
 // }, 2000)
 
 
+const data = {
+  foo: 1
+}
+
+const obj = reactive(data)
+
+effect(() => {
+  console.log('effect run', 'foo' in obj)  // 这样将会建立依赖关系
+})
+
+// 过几秒之后我们修改 foo 的值，看是否会触发依赖函数重新执行呢？
+setTimeout(() => {
+  obj.foo++
+}, 1000)
+
 

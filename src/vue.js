@@ -51,6 +51,12 @@ export function reactive(data) {
       // 后触发依赖
       trigger(target, key)
       return result
+    },
+    // 我们再来添加 has, 用来检测在 effect 中 in 的操作
+    has(target, key, receiver) {
+      // 收集依赖
+      track(target, key)
+      return Reflect.has(target, key, receiver)
     }
   })
   return proxy

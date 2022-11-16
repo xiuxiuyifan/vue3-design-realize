@@ -38,6 +38,9 @@ export function effect(fn, options = {}) {
 
 const weakmap = new WeakMap()
 
+// ownKeys 获取的是一个对象的所有属于自己的键值  for in 不像是 操作对象的某个 key ，所以要进行单独区分开
+const ITERATE_KEY = Symbol()
+
 export function reactive(data) {
   const proxy = new Proxy(data, {
     get(target, key, receiver) {
@@ -57,6 +60,11 @@ export function reactive(data) {
       // 收集依赖
       track(target, key)
       return Reflect.has(target, key, receiver)
+    },
+    // 收集 for in 循环
+    ownKeys(target) {
+      track(target, ITERATE_KEY)
+      return Reflect.ownKeys(target)
     }
   })
   return proxy
@@ -101,6 +109,9 @@ export function trigger(target, key) {
   // 再找 键对应 的 set 里面存放的就是 effect
   let effects = targetMap.get(key)
 
+  // 取出对象的 iterateEffect
+  let iterateEffect = targetMap.get(ITERATE_KEY)
+
   // 新构造一个 set 用来遍历
   let effectToRun = new Set()
   // 遍历effect 并执行
@@ -109,6 +120,13 @@ export function trigger(target, key) {
       effectToRun.add(effectFn)
     }
   })
+  // 把 iterate_key 相关的 effect 函数也拿出来
+  iterateEffect && iterateEffect.forEach(effectFn => {
+    if (activeEffect !== effectFn) {
+      effectToRun.add(effectFn)
+    }
+  })
+
   effectToRun.forEach(effectFn => {
     //如果一个副作用函数存在调度器参数，那么则调用这个调度器函数，并将副作用函数作为参数进行传递
     if (effectFn.options.scheduler) {

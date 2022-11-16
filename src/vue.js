@@ -8,7 +8,8 @@ let effectStack = [] // 存放 effect 函数的执行栈
 
 const TriggerType = {
   SET: 'SET',
-  ADD: 'ADD'
+  ADD: 'ADD',
+  DELETE: 'DELETE'
 }
 
 export function effect(fn, options = {}) {
@@ -72,6 +73,17 @@ export function reactive(data) {
     ownKeys(target) {
       track(target, ITERATE_KEY)
       return Reflect.ownKeys(target)
+    },
+    deleteProperty(target, key) {
+      let hadKey = Object.prototype.hasOwnProperty.call(target, key)
+
+      let res = Reflect.deleteProperty(target, key)
+
+      // 必须是自身上的 key  并且删除成功了 才能触发更新
+      if (hadKey && res) {
+        trigger(target, key, TriggerType.DELETE)
+      }
+      return res
     }
   })
   return proxy
@@ -125,7 +137,7 @@ export function trigger(target, key, type) {
     }
   })
   // 只有新增的时候触发 iterateEffect
-  if (type === TriggerType.ADD) {
+  if (type === TriggerType.ADD || type === TriggerType.DELETE) {
     // 取出对象的 iterateEffect
     let iterateEffect = targetMap.get(ITERATE_KEY)
     // 把 iterate_key 相关的 effect 函数也拿出来

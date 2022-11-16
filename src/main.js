@@ -234,8 +234,28 @@ import {
 // }, 1000)
 
 
+// const data = {
+//   foo: 1
+// }
+
+// const obj = reactive(data)
+
+// effect(() => {
+//   // 测试 for  in 循环
+//   for (let key in obj) {
+//     console.log(key)
+//   }
+// })
+
+// // 过一秒之后我们给响应式对象上面添加一个新的属性是否会重新触发依赖函数吗？
+// setTimeout(() => {
+//   obj.foo = 99
+// }, 1000)
+
+
 const data = {
-  foo: 1
+  foo: 1,
+  bar: 99
 }
 
 const obj = reactive(data)
@@ -249,8 +269,7 @@ effect(() => {
 
 // 过一秒之后我们给响应式对象上面添加一个新的属性是否会重新触发依赖函数吗？
 setTimeout(() => {
-  obj.foo = 99
+  delete obj.foo
 }, 1000)
-
 
 

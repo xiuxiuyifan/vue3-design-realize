@@ -274,7 +274,7 @@ import {
 
 
 const data = {
-  foo: 1
+  foo: NaN
 }
 
 const obj = reactive(data)
@@ -285,7 +285,7 @@ effect(() => {
 
 // 设置一样的值的时候，不触发依赖
 setTimeout(() => {
-  obj.foo = 1
+  obj.foo = NaN
 }, 1000)
 
 

@@ -62,7 +62,7 @@ export function reactive(data) {
       // 先设置属性
       let result = Reflect.set(target, key, value, receiver)
       // 后触发依赖
-      if (oldVal !== value) {
+      if (oldVal !== value && (oldVal === oldVal || value === value)) {
         trigger(target, key, type)
       }
       return result

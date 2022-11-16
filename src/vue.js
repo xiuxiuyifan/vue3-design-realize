@@ -55,12 +55,16 @@ export function reactive(data) {
       return Reflect.get(target, key, receiver)
     },
     set(target, key, value, receiver) {
+      // 先获取老值
+      let oldVal = target[key]
       // set 之前先区分是 新增还是修改
       let type = Object.prototype.hasOwnProperty.call(target, key) ? TriggerType.SET : TriggerType.ADD
       // 先设置属性
       let result = Reflect.set(target, key, value, receiver)
       // 后触发依赖
-      trigger(target, key, type)
+      if (oldVal !== value) {
+        trigger(target, key, type)
+      }
       return result
     },
     // 我们再来添加 has, 用来检测在 effect 中 in 的操作

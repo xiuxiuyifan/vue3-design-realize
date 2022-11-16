@@ -6,6 +6,11 @@ let activeEffect
 
 let effectStack = [] // 存放 effect 函数的执行栈
 
+const TriggerType = {
+  SET: 'SET',
+  ADD: 'ADD'
+}
+
 export function effect(fn, options = {}) {
   const effectFn = () => {
     // 在触发 get 之前先清除
@@ -49,10 +54,12 @@ export function reactive(data) {
       return Reflect.get(target, key, receiver)
     },
     set(target, key, value, receiver) {
+      // set 之前先区分是 新增还是修改
+      let type = Object.prototype.hasOwnProperty.call(target, key) ? TriggerType.SET : TriggerType.ADD
       // 先设置属性
       let result = Reflect.set(target, key, value, receiver)
       // 后触发依赖
-      trigger(target, key)
+      trigger(target, key, type)
       return result
     },
     // 我们再来添加 has, 用来检测在 effect 中 in 的操作
@@ -99,7 +106,7 @@ export function track(target, key) {
 }
 
 // 触发依赖
-export function trigger(target, key) {
+export function trigger(target, key, type) {
   // 从weakmap中找出target的依赖信息
 
   let targetMap = weakmap.get(target)
@@ -109,9 +116,6 @@ export function trigger(target, key) {
   // 再找 键对应 的 set 里面存放的就是 effect
   let effects = targetMap.get(key)
 
-  // 取出对象的 iterateEffect
-  let iterateEffect = targetMap.get(ITERATE_KEY)
-
   // 新构造一个 set 用来遍历
   let effectToRun = new Set()
   // 遍历effect 并执行
@@ -120,12 +124,17 @@ export function trigger(target, key) {
       effectToRun.add(effectFn)
     }
   })
-  // 把 iterate_key 相关的 effect 函数也拿出来
-  iterateEffect && iterateEffect.forEach(effectFn => {
-    if (activeEffect !== effectFn) {
-      effectToRun.add(effectFn)
-    }
-  })
+  // 只有新增的时候触发 iterateEffect
+  if (type === TriggerType.ADD) {
+    // 取出对象的 iterateEffect
+    let iterateEffect = targetMap.get(ITERATE_KEY)
+    // 把 iterate_key 相关的 effect 函数也拿出来
+    iterateEffect && iterateEffect.forEach(effectFn => {
+      if (activeEffect !== effectFn) {
+        effectToRun.add(effectFn)
+      }
+    })
+  }
 
   effectToRun.forEach(effectFn => {
     //如果一个副作用函数存在调度器参数，那么则调用这个调度器函数，并将副作用函数作为参数进行传递

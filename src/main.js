@@ -289,22 +289,41 @@ import {
 // }, 1000)
 
 
-const obj = {}
-const proto = { bar: 1 }
+// const obj = {}
+// const proto = { bar: 1 }
 
-const child = reactive(obj)
-const parent = reactive(proto)
+// const child = reactive(obj)
+// const parent = reactive(proto)
 
-// 让 parent 作为 child 的原型
-Object.setPrototypeOf(child, parent)
+// // 让 parent 作为 child 的原型
+// Object.setPrototypeOf(child, parent)
+
+// effect(() => {
+//   console.log(child.bar)
+// })
+
+// // 设置一样的值的时候，不触发依赖
+
+// setTimeout(() => {
+//   child.bar = 100
+// }, 1000)
+
+
+
+const data = {
+  foo: {
+    bar: 1
+  }
+}
+
+const obj = reactive(data)
 
 effect(() => {
-  console.log(child.bar)
+  console.log(obj.foo.bar)
 })
 
 // 设置一样的值的时候，不触发依赖
 
 setTimeout(() => {
-  child.bar = 100
+  obj.foo.bar = 99
 }, 1000)
-

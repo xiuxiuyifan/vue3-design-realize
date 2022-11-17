@@ -56,7 +56,13 @@ export function reactive(data) {
       }
       // 触发依赖收集
       track(target, key)
-      return Reflect.get(target, key, receiver)
+      let res = Reflect.get(target, key, receiver)
+      // 判断获取到的属性值的类型
+      if (typeof res === 'object' && typeof res !== null) {
+        // 如果是对象，则需要递归访问返回结果下面的属性，让其进行依赖收集
+        return reactive(res)
+      }
+      return res
     },
     set(target, key, value, receiver) {
       // 先获取老值

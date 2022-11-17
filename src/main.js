@@ -7,7 +7,7 @@ import {
   track,
   computed,
   watch
-} from './vue'
+} from './vue.js'
 
 // import {
 //   effect,
@@ -273,19 +273,38 @@ import {
 // }, 1000)
 
 
-const data = {
-  foo: NaN
-}
+// const data = {
+//   foo: NaN
+// }
 
-const obj = reactive(data)
+// const obj = reactive(data)
+
+// effect(() => {
+//   console.log(obj.foo)
+// })
+
+// // 设置一样的值的时候，不触发依赖
+// setTimeout(() => {
+//   obj.foo = NaN
+// }, 1000)
+
+
+const obj = {}
+const proto = { bar: 1 }
+
+const child = reactive(obj)
+const parent = reactive(proto)
+
+// 让 parent 作为 child 的原型
+Object.setPrototypeOf(child, parent)
 
 effect(() => {
-  console.log(obj.foo)
+  console.log(child.bar)
 })
 
 // 设置一样的值的时候，不触发依赖
-setTimeout(() => {
-  obj.foo = NaN
-}, 1000)
 
+setTimeout(() => {
+  child.bar = 100
+}, 1000)
 

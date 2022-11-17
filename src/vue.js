@@ -50,6 +50,10 @@ const ITERATE_KEY = Symbol()
 export function reactive(data) {
   const proxy = new Proxy(data, {
     get(target, key, receiver) {
+      // 代理对象可以通过raw属性访问原始数据
+      if (key === 'raw') {
+        return target
+      }
       // 触发依赖收集
       track(target, key)
       return Reflect.get(target, key, receiver)
@@ -61,9 +65,12 @@ export function reactive(data) {
       let type = Object.prototype.hasOwnProperty.call(target, key) ? TriggerType.SET : TriggerType.ADD
       // 先设置属性
       let result = Reflect.set(target, key, value, receiver)
-      // 后触发依赖
-      if (oldVal !== value && (oldVal === oldVal || value === value)) {
-        trigger(target, key, type)
+      // 如果 target === receiver.raw 则说明  receiver 就是 target 的代理对象，而非原型上属性触发的 set
+      if (receiver.raw === target) {
+        // 后触发依赖
+        if (oldVal !== value && (oldVal === oldVal || value === value)) {
+          trigger(target, key, type)
+        }
       }
       return result
     },

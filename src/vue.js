@@ -138,6 +138,11 @@ export function readonly(data) {
   return createReactive(data, false, true)
 }
 
+// 浅的只读属性
+export function shallowReadonly(data) {
+  return createReactive(data, true, true)
+}
+
 // {
 //   obj: {
 //     name: [effect1, effect2]

@@ -8,7 +8,8 @@ import {
   computed,
   watch,
   shallowReactive,
-  readonly
+  readonly,
+  shallowReadonly
 } from './vue.js'
 
 // import {
@@ -381,15 +382,26 @@ import {
 // })
 
 
+// const data = {
+//   foo: {
+//     bar: 1
+//   }
+// }
+
+// const obj = readonly(data)
+
+// obj.foo.bar = 99
+// console.log(obj.foo.bar)
+
 const data = {
+  num: 1,
   foo: {
     bar: 1
   }
 }
 
-const obj = readonly(data)
+const obj = shallowReadonly(data)
 
+obj.num = 100
 obj.foo.bar = 99
 console.log(obj.foo.bar)
-
-

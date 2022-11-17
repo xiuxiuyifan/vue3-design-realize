@@ -47,7 +47,8 @@ const weakmap = new WeakMap()
 // ownKeys 获取的是一个对象的所有属于自己的键值  for in 不像是 操作对象的某个 key ，所以要进行单独区分开
 const ITERATE_KEY = Symbol()
 
-export function reactive(data) {
+// 接受第二个参数，表示是否是浅的， 默认不是浅的，是深层的
+function createReactive(data, isShallow = false) {
   const proxy = new Proxy(data, {
     get(target, key, receiver) {
       // 代理对象可以通过raw属性访问原始数据
@@ -55,8 +56,12 @@ export function reactive(data) {
         return target
       }
       // 触发依赖收集
-      track(target, key)
       let res = Reflect.get(target, key, receiver)
+      track(target, key)
+      // 如果是浅的，则直接 return 掉
+      if (isShallow) {
+        return res
+      }
       // 判断获取到的属性值的类型
       if (typeof res === 'object' && typeof res !== null) {
         // 如果是对象，则需要递归访问返回结果下面的属性，让其进行依赖收集
@@ -104,6 +109,14 @@ export function reactive(data) {
     }
   })
   return proxy
+}
+
+export function reactive(data) {
+  return createReactive(data)
+}
+
+export function shallowReactive(data) {
+  return createReactive(data, true)
 }
 
 // {

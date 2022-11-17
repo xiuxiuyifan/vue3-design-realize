@@ -370,14 +370,26 @@ import {
 // obj.foo = 100
 
 
+// const data = {
+//   foo: 1
+// }
+
+// const obj = readonly(data)
+
+// effect(() => {
+//   console.log(obj.foo)
+// })
+
+
 const data = {
-  foo: 1
+  foo: {
+    bar: 1
+  }
 }
 
 const obj = readonly(data)
 
-effect(() => {
-  console.log(obj.foo)
-})
+obj.foo.bar = 99
+console.log(obj.foo.bar)
 
 

@@ -69,7 +69,8 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       // 判断获取到的属性值的类型
       if (typeof res === 'object' && typeof res !== null) {
         // 如果是对象，则需要递归访问返回结果下面的属性，让其进行依赖收集
-        return reactive(res)
+        // 如果是只读的，调用 readonly 函数处理返回结果
+        return isReadonly ? readonly(res) : reactive(res)
       }
       return res
     },

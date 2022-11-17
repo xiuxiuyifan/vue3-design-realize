@@ -361,10 +361,23 @@ import {
 // }, 1000)
 
 
+// const data = {
+//   foo: 1
+// }
+
+// const obj = readonly(data)
+
+// obj.foo = 100
+
+
 const data = {
   foo: 1
 }
 
 const obj = readonly(data)
 
-obj.foo = 100
+effect(() => {
+  console.log(obj.foo)
+})
+
+

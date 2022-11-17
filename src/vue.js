@@ -48,7 +48,8 @@ const weakmap = new WeakMap()
 const ITERATE_KEY = Symbol()
 
 // 接受第二个参数，表示是否是浅的， 默认不是浅的，是深层的
-function createReactive(data, isShallow = false) {
+// 添加第三个参数，表示是否是只读的，默认不是只读的，默认是可读可写
+function createReactive(data, isShallow = false, isReadonly = false) {
   const proxy = new Proxy(data, {
     get(target, key, receiver) {
       // 代理对象可以通过raw属性访问原始数据
@@ -70,6 +71,11 @@ function createReactive(data, isShallow = false) {
       return res
     },
     set(target, key, value, receiver) {
+      // 如果是只读的，则打印警告信息，并且直接返回
+      if (isReadonly) {
+        console.warn(`属性${key}是只读的，不能进行修改！`)
+        return true
+      }
       // 先获取老值
       let oldVal = target[key]
       // set 之前先区分是 新增还是修改
@@ -97,6 +103,11 @@ function createReactive(data, isShallow = false) {
       return Reflect.ownKeys(target)
     },
     deleteProperty(target, key) {
+      // 如果是只读的，则打印警告信息，并且直接返回
+      if (isReadonly) {
+        console.warn(`属性${key}是只读的，不能进行修改！`)
+        return true
+      }
       let hadKey = Object.prototype.hasOwnProperty.call(target, key)
 
       let res = Reflect.deleteProperty(target, key)
@@ -117,6 +128,10 @@ export function reactive(data) {
 
 export function shallowReactive(data) {
   return createReactive(data, true)
+}
+
+export function readonly(data) {
+  return createReactive(data, false, true)
 }
 
 // {

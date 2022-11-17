@@ -7,7 +7,8 @@ import {
   track,
   computed,
   watch,
-  shallowReactive
+  shallowReactive,
+  readonly
 } from './vue.js'
 
 // import {
@@ -330,31 +331,40 @@ import {
 // }, 1000)
 
 
+// const data = {
+//   foo: {
+//     bar: 1
+//   }
+// }
+// const data1 = {
+//   foo: {
+//     bar: 1
+//   }
+// }
+
+// const obj = reactive(data)
+// const shallowObj = shallowReactive(data1)
+
+// effect(() => {
+//   console.log(obj.foo.bar)
+// })
+
+// effect(() => {
+//   console.log(shallowObj.foo.bar)
+// })
+
+// // 设置一样的值的时候，不触发依赖
+
+// setTimeout(() => {
+//   obj.foo.bar = 99
+//   shallowObj.foo.bar = 100
+// }, 1000)
+
+
 const data = {
-  foo: {
-    bar: 1
-  }
-}
-const data1 = {
-  foo: {
-    bar: 1
-  }
+  foo: 1
 }
 
-const obj = reactive(data)
-const shallowObj = shallowReactive(data1)
+const obj = readonly(data)
 
-effect(() => {
-  console.log(obj.foo.bar)
-})
-
-effect(() => {
-  console.log(shallowObj.foo.bar)
-})
-
-// 设置一样的值的时候，不触发依赖
-
-setTimeout(() => {
-  obj.foo.bar = 99
-  shallowObj.foo.bar = 100
-}, 1000)
+obj.foo = 100

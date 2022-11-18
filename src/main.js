@@ -393,15 +393,26 @@ import {
 // obj.foo.bar = 99
 // console.log(obj.foo.bar)
 
-const data = {
-  num: 1,
-  foo: {
-    bar: 1
-  }
-}
+// const data = {
+//   num: 1,
+//   foo: {
+//     bar: 1
+//   }
+// }
 
-const obj = shallowReadonly(data)
+// const obj = shallowReadonly(data)
 
-obj.num = 100
-obj.foo.bar = 99
-console.log(obj.foo.bar)
+// obj.num = 100
+// obj.foo.bar = 99
+// console.log(obj.foo.bar)
+
+
+const data = ['foo']
+
+const arr = reactive(data)
+
+effect(() => {
+  console.log(arr[0])
+})
+
+arr[0] = 'bar'

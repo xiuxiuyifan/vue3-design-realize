@@ -459,17 +459,24 @@ import {
 
 
 
-const data = [1, 2]
+// const data = [1, 2]
 
-const arr = reactive(data)
+// const arr = reactive(data)
 
-effect(() => {
-  for (const val of arr) {
-    console.log(val) //
-  }
-})
+// effect(() => {
+//   for (const val of arr) {
+//     console.log(val) //
+//   }
+// })
 
-setTimeout(() => {
-  arr[2] = 3
-}, 1000)
+// setTimeout(() => {
+//   arr[2] = 3
+// }, 1000)
+
+
+const obj = {}
+
+const arr = reactive([obj])
+
+console.log(arr.includes(arr[0]))   //  得到的两个代理对象是不同的，所以会返回 false
 

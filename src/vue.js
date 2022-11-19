@@ -132,8 +132,14 @@ function createReactive(data, isShallow = false, isReadonly = false) {
   return proxy
 }
 
+// 定义一个对象，存贮原始对象和代理对象之间的映射关系
+const reactiveMap = new Map()
 export function reactive(data) {
-  return createReactive(data)
+  let existProxy = reactiveMap.get(data)
+  if (existProxy) return existProxy
+  let proxy = createReactive(data)
+  reactiveMap.set(data, proxy)
+  return proxy
 }
 
 export function shallowReactive(data) {

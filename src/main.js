@@ -418,12 +418,25 @@ import {
 // arr[0] = 'bar'
 
 
-const data = ['foo']
+// const data = ['foo']
+
+// const arr = reactive(data)
+
+// effect(() => {
+//   console.log(arr.length)
+// })
+
+// arr[1] = 'bar'
+
+
+const data = [1, 2]
 
 const arr = reactive(data)
 
 effect(() => {
-  console.log(arr.length)
+  // 访问数组的 第 0 个元素
+  console.log(arr[0], arr[1])
 })
 
-arr[1] = 'bar'
+// 将数组的长度改为 0
+arr.length = 0

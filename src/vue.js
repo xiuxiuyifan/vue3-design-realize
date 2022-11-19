@@ -94,7 +94,8 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       if (receiver.raw === target) {
         // 后触发依赖
         if (oldVal !== value && (oldVal === oldVal || value === value)) {
-          trigger(target, key, type)
+          // 添加第四个参数， 既触发响应式时候的新值
+          trigger(target, key, type, value)
         }
       }
       return result
@@ -176,7 +177,7 @@ export function track(target, key) {
 }
 
 // 触发依赖
-export function trigger(target, key, type) {
+export function trigger(target, key, type, newVal) {
   // 从weakmap中找出target的依赖信息
 
   let targetMap = weakmap.get(target)
@@ -206,12 +207,29 @@ export function trigger(target, key, type) {
     })
   }
   // 取数组 length 的 effect 函数
+  // {
+  //   length: set[fn, fn, fn]
+  // }
   if (type === TriggerType.ADD && Array.isArray(target)) {
     let lengthEffect = targetMap.get('length')
     lengthEffect && lengthEffect.forEach(effectFn => {
+      console.log(effectFn)
       if (activeEffect !== effectFn) {
         // 将 length 的依赖函数 添加到要触发的 effect 函数中中
         effectToRun.add(effectFn)
+      }
+    })
+  }
+
+  // 如果目标是数组，并且修改了 数组的 length 属性
+  if (Array.isArray(target) && key === 'length') {
+    targetMap.forEach((effects, key) => {
+      // 找到依赖中 大于等于新 length 的元素
+      if (key >= newVal) {
+        // 再遍历每个元素的依赖，把他们加入到 要运行的 effect 队列中
+        effects.forEach(effectFn => {
+          effectToRun.add(effectFn)
+        })
       }
     })
   }

@@ -442,18 +442,34 @@ import {
 // arr.length = 0
 
 
+// const data = [1, 2]
+
+// const arr = reactive(data)
+
+// effect(() => {
+//   for (const key in arr) {
+//     console.log(key) //
+//   }
+// })
+
+// // arr[2] = 3
+// setTimeout(() => {
+//   arr.length = 1
+// }, 1000)
+
+
+
 const data = [1, 2]
 
 const arr = reactive(data)
 
 effect(() => {
-  for (const key in arr) {
-    console.log(key) //
+  for (const val of arr) {
+    console.log(val) //
   }
 })
 
-// arr[2] = 3
 setTimeout(() => {
-  arr.length = 1
+  arr[2] = 3
 }, 1000)
 

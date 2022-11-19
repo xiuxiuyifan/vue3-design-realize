@@ -59,7 +59,8 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       // 触发依赖收集
       let res = Reflect.get(target, key, receiver)
       // 非只读的时候才需要进行依赖收集
-      if (!isReadonly) {
+      // 不收集 for of 时候触发读取 symbol 属性
+      if (!isReadonly && typeof key !== 'symbol') {
         track(target, key)
       }
       // 如果是浅的，则直接 return 掉

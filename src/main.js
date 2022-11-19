@@ -407,12 +407,23 @@ import {
 // console.log(obj.foo.bar)
 
 
+// const data = ['foo']
+
+// const arr = reactive(data)
+
+// effect(() => {
+//   console.log(arr[0])
+// })
+
+// arr[0] = 'bar'
+
+
 const data = ['foo']
 
 const arr = reactive(data)
 
 effect(() => {
-  console.log(arr[0])
+  console.log(arr.length)
 })
 
-arr[0] = 'bar'
+arr[1] = 'bar'

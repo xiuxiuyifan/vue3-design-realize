@@ -83,7 +83,11 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       // 先获取老值
       let oldVal = target[key]
       // set 之前先区分是 新增还是修改
-      let type = Object.prototype.hasOwnProperty.call(target, key) ? TriggerType.SET : TriggerType.ADD
+      // 代理对象如果是数组
+      // 如果 设置的 下标小于数组的长度，那么则表示修改，否则表示新增
+      let type = Array.isArray(target)
+        ? Number(key) < target.length ? TriggerType.SET : TriggerType.ADD
+        : Object.prototype.hasOwnProperty.call(target, key) ? TriggerType.SET : TriggerType.ADD
       // 先设置属性
       let result = Reflect.set(target, key, value, receiver)
       // 如果 target === receiver.raw 则说明  receiver 就是 target 的代理对象，而非原型上属性触发的 set
@@ -197,6 +201,16 @@ export function trigger(target, key, type) {
     // 把 iterate_key 相关的 effect 函数也拿出来
     iterateEffect && iterateEffect.forEach(effectFn => {
       if (activeEffect !== effectFn) {
+        effectToRun.add(effectFn)
+      }
+    })
+  }
+  // 取数组 length 的 effect 函数
+  if (type === TriggerType.ADD && Array.isArray(target)) {
+    let lengthEffect = targetMap.get('length')
+    lengthEffect && lengthEffect.forEach(effectFn => {
+      if (activeEffect !== effectFn) {
+        // 将 length 的依赖函数 添加到要触发的 effect 函数中中
         effectToRun.add(effectFn)
       }
     })

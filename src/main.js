@@ -429,14 +429,31 @@ import {
 // arr[1] = 'bar'
 
 
+// const data = [1, 2]
+
+// const arr = reactive(data)
+
+// effect(() => {
+//   // 访问数组的 第 0 个元素
+//   console.log(arr[0], arr[1])
+// })
+
+// // 将数组的长度改为 0
+// arr.length = 0
+
+
 const data = [1, 2]
 
 const arr = reactive(data)
 
 effect(() => {
-  // 访问数组的 第 0 个元素
-  console.log(arr[0], arr[1])
+  for (const key in arr) {
+    console.log(key) //
+  }
 })
 
-// 将数组的长度改为 0
-arr.length = 0
+// arr[2] = 3
+setTimeout(() => {
+  arr.length = 1
+}, 1000)
+

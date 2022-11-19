@@ -108,7 +108,7 @@ function createReactive(data, isShallow = false, isReadonly = false) {
     },
     // 收集 for in 循环
     ownKeys(target) {
-      track(target, ITERATE_KEY)
+      track(target, Array.isArray(target) ? 'length' : ITERATE_KEY)
       return Reflect.ownKeys(target)
     },
     deleteProperty(target, key) {
@@ -213,7 +213,6 @@ export function trigger(target, key, type, newVal) {
   if (type === TriggerType.ADD && Array.isArray(target)) {
     let lengthEffect = targetMap.get('length')
     lengthEffect && lengthEffect.forEach(effectFn => {
-      console.log(effectFn)
       if (activeEffect !== effectFn) {
         // 将 length 的依赖函数 添加到要触发的 effect 函数中中
         effectToRun.add(effectFn)
@@ -228,7 +227,9 @@ export function trigger(target, key, type, newVal) {
       if (key >= newVal) {
         // 再遍历每个元素的依赖，把他们加入到 要运行的 effect 队列中
         effects.forEach(effectFn => {
-          effectToRun.add(effectFn)
+          if (activeEffect !== effectFn) {
+            effectToRun.add(effectFn)
+          }
         })
       }
     })

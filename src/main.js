@@ -515,16 +515,26 @@ import {
 // console.log(obj.delete(1))
 
 
-const obj = reactive(new Set([1, 2, 3]))
+// const obj = reactive(new Set([1, 2, 3]))
 
-effect(() => {
-  console.log(obj.size)
-})
+// effect(() => {
+//   console.log(obj.size)
+// })
+
+// // setTimeout(() => {
+// //   obj.add(4)
+// // }, 1000);
 
 // setTimeout(() => {
-//   obj.add(4)
+//   obj.delete(3)
 // }, 1000);
 
+
+const obj = reactive(new Map([['key', 1]]))
+effect(() => {
+  console.log(obj.get('key'))
+})
+
 setTimeout(() => {
-  obj.delete(3)
+  obj.set('key', 2)
 }, 1000);

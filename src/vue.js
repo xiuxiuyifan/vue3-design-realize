@@ -102,6 +102,34 @@ const mutableInstrumentations = {
       trigger(target, key, TriggerType.DELETE)
     }
     return res
+  },
+  get(key) {
+    // 获取原始对象
+    let target = this.raw
+    // 判断读取的 key 是否存在于原始对象上面
+    let had = target.get(key)
+    // 依赖收集
+    track(target, key)
+    // 如果在原始的对象上面存在，那么就取一下
+    let ret = target.get(key)
+    if (had) {
+      return typeof res === 'object' ? reactive(ret) : ret
+    }
+  },
+  set(key, value) {
+    let target = this.raw
+    const had = target[key]
+    // 获取老值
+    let oldVal = target.get(key)
+    // 设置新值
+    target.set(key, value)
+    // 如果原来没有 则表示新增
+    if (!had) {
+      trigger(target, key, TriggerType.ADD)
+    } else if (oldVal !== val && (oldVal === oldVal && value === value)) {
+      // 如果存在并且值变了，就是设置值
+      trigger(target, key, TriggerType.SET)
+    }
   }
 }
 
@@ -115,16 +143,14 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       if (key === 'raw') {
         return target
       }
-      // 处理 map
-      if (target instanceof Set) {
+      // 处理 set 和 map
+      if (target instanceof Set || target instanceof Map) {
         if (key === 'size') {
           // 如果读取的是 size 属性，那么将内部的 this 修改为 原始对象
           track(target, ITERATE_KEY)
           return Reflect.get(target, key, target)
         }
-        if (key === 'add' || key === 'delete') {
-          return mutableInstrumentations[key]
-        }
+        return mutableInstrumentations[key]
       }
       // 如果操作的目标对象是数组，
       if (Array.isArray(target) && arrayInstrumentations.hasOwnProperty(key)) {

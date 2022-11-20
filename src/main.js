@@ -511,5 +511,20 @@ import {
 
 // console.log(arr)
 
+// const obj = reactive(new Set([1, 2, 3]))
+// console.log(obj.delete(1))
+
+
 const obj = reactive(new Set([1, 2, 3]))
-console.log(obj.delete(1))
+
+effect(() => {
+  console.log(obj.size)
+})
+
+// setTimeout(() => {
+//   obj.add(4)
+// }, 1000);
+
+setTimeout(() => {
+  obj.delete(3)
+}, 1000);

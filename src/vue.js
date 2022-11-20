@@ -79,6 +79,32 @@ const arrayInstrumentations = {
   }
 })
 
+// 定义对象的方法拦截器
+
+const mutableInstrumentations = {
+  add(key) {
+    // 获取原始对象
+    const target = this.raw
+    const hasKey = target.has(key)
+    const res = target.add(key)
+    if (!hasKey) {
+      trigger(target, key, TriggerType.ADD)
+    }
+    return res
+  },
+  delete(key) {
+    // 获取原始对象
+    const target = this.raw
+    const hasKey = target.has(key)
+    const res = target.delete(key)
+    // 如果原始对象上面有 当前要删除的 key 才触发依赖收集
+    if (hasKey) {
+      trigger(target, key, TriggerType.DELETE)
+    }
+    return res
+  }
+}
+
 
 // 接受第二个参数，表示是否是浅的， 默认不是浅的，是深层的
 // 添加第三个参数，表示是否是只读的，默认不是只读的，默认是可读可写
@@ -89,12 +115,16 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       if (key === 'raw') {
         return target
       }
-      if (key === 'size') {
-        // 如果读取的是 size 属性，那么将内部的 this 修改为 原始对象
-        return Reflect.get(target, key, target)
-      }
-      if (key === 'delete') {
-        return target[key].bind(target)
+      // 处理 map
+      if (target instanceof Set) {
+        if (key === 'size') {
+          // 如果读取的是 size 属性，那么将内部的 this 修改为 原始对象
+          track(target, ITERATE_KEY)
+          return Reflect.get(target, key, target)
+        }
+        if (key === 'add' || key === 'delete') {
+          return mutableInstrumentations[key]
+        }
       }
       // 如果操作的目标对象是数组，
       if (Array.isArray(target) && arrayInstrumentations.hasOwnProperty(key)) {

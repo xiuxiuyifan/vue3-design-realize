@@ -89,6 +89,10 @@ function createReactive(data, isShallow = false, isReadonly = false) {
       if (key === 'raw') {
         return target
       }
+      if (key === 'size') {
+        // 如果读取的是 size 属性，那么将内部的 this 修改为 原始对象
+        return Reflect.get(target, key, target)
+      }
       // 如果操作的目标对象是数组，
       if (Array.isArray(target) && arrayInstrumentations.hasOwnProperty(key)) {
         return Reflect.get(arrayInstrumentations, key, receiver)

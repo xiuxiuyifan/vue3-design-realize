@@ -495,18 +495,21 @@ import {
 // console.log(arr.indexOf(obj))   //  那原始对象去 代理对象里面找肯定找不见  我们需要重写 includes方法
 
 
-const arr = reactive([])
+// const arr = reactive([])
 
-// 第一个副作用函数
-effect(() => {
-  arr.push(1)
-})
+// // 第一个副作用函数
+// effect(() => {
+//   arr.push(1)
+// })
 
-// 调用第二个副作用函数
+// // 调用第二个副作用函数
 
-effect(() => {
-  arr.push(1)
-})
+// effect(() => {
+//   arr.push(1)
+// })
 
 
-console.log(arr)
+// console.log(arr)
+
+const obj = reactive(new Set([1, 2, 3]))
+console.log(obj.size)

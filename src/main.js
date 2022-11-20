@@ -488,8 +488,25 @@ import {
 // console.log(arr.includes(obj))   //  那原始对象去 代理对象里面找肯定找不见  我们需要重写 includes方法
 
 
-const obj = {}
+// const obj = {}
 
-const arr = reactive([obj])
+// const arr = reactive([obj])
 
-console.log(arr.indexOf(obj))   //  那原始对象去 代理对象里面找肯定找不见  我们需要重写 includes方法
+// console.log(arr.indexOf(obj))   //  那原始对象去 代理对象里面找肯定找不见  我们需要重写 includes方法
+
+
+const arr = reactive([])
+
+// 第一个副作用函数
+effect(() => {
+  arr.push(1)
+})
+
+// 调用第二个副作用函数
+
+effect(() => {
+  arr.push(1)
+})
+
+
+console.log(arr)

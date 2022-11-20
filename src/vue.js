@@ -47,6 +47,9 @@ const weakmap = new WeakMap()
 // ownKeys 获取的是一个对象的所有属于自己的键值  for in 不像是 操作对象的某个 key ，所以要进行单独区分开
 const ITERATE_KEY = Symbol()
 
+// 设置一个变量，代表是否进行跟踪，默认是 true 是可以跟踪的
+let shouldTrack = true
+
 const arrayInstrumentations = {
 };
 
@@ -59,6 +62,19 @@ const arrayInstrumentations = {
       // 如果没找到，就到原始数组中去找
       res = originMethod.apply(this.raw, args)
     }
+    return res
+  }
+});
+
+// 重写数组方法
+['push', 'pop', 'shift', 'unshift', 'splice'].forEach((method) => {
+  const originMethod = Array.prototype[method]
+  arrayInstrumentations[method] = function (...args) {
+    // 调用原始方法之前先禁止跟中
+    shouldTrack = false
+    let res = originMethod.apply(this, args)
+    // 调用完成之后 将可跟踪设置为 true
+    shouldTrack = true
     return res
   }
 })
@@ -184,7 +200,7 @@ export function shallowReadonly(data) {
 
 export function track(target, key) {
   // 如果没有 activeEffect 则直接 return 可能是直接访问的
-  if (!activeEffect) return
+  if (!activeEffect || !shouldTrack) return
   // 查找对象是否在依赖中出现过
   let targetMap = weakmap.get(target)
   // 如果不存在 targetMap 则新建一个 map 赋值给 targetMap 并与 target 关联 ，并且把 其存放到 weakmap中去

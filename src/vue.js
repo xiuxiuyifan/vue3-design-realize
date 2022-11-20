@@ -121,8 +121,11 @@ const mutableInstrumentations = {
     const had = target[key]
     // 获取老值
     let oldVal = target.get(key)
+    //  如果是代理数据的话，那么他上面会有 raw 属性 ，
+    // 我们把数据污染定义为：把响应式数据设置到原始数据上面的操作叫做数据污染
+    let rawValue = value.raw || value
     // 设置新值
-    target.set(key, value)
+    target.set(key, rawValue)
     // 如果原来没有 则表示新增
     if (!had) {
       trigger(target, key, TriggerType.ADD)

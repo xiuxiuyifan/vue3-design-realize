@@ -530,11 +530,33 @@ import {
 // }, 1000);
 
 
-const obj = reactive(new Map([['key', 1]]))
+// const obj = reactive(new Map([['key', 1]]))
+// effect(() => {
+//   console.log(obj.get('key'))
+// })
+
+// setTimeout(() => {
+//   obj.set('key', 2)
+// }, 1000);
+
+const m = new Map()
+
+const p1 = reactive(m)
+
+const p2 = reactive(new Map())
+
+// 给 p1 设置一个键值对 p2  值是 p2
+
+p1.set('p2', p2)
+
+console.log(p1)
 effect(() => {
-  console.log(obj.get('key'))
+  console.log(m.get('p2').size)
 })
 
+
+// 通过原来的值 也可以触发响应式数据 这样就显得有点混乱了
 setTimeout(() => {
-  obj.set('key', 2)
+  m.get('p2').set('foo', 1)
 }, 1000);
+

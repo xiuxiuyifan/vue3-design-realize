@@ -512,4 +512,4 @@ import {
 // console.log(arr)
 
 const obj = reactive(new Set([1, 2, 3]))
-console.log(obj.size)
+console.log(obj.delete(1))

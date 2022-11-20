@@ -47,19 +47,22 @@ const weakmap = new WeakMap()
 // ownKeys 获取的是一个对象的所有属于自己的键值  for in 不像是 操作对象的某个 key ，所以要进行单独区分开
 const ITERATE_KEY = Symbol()
 
-const originMethod = Array.prototype.includes
-
 const arrayInstrumentations = {
-  includes: function (...args) {
+};
+
+['includes', 'indexOf', 'lastIndexOf'].forEach(method => {
+  const originMethod = Array.prototype[method]
+  arrayInstrumentations[method] = function (...args) {
     // 先在代理数组里面查找
     let res = originMethod.apply(this, args)
-    if (res === false) {
+    if (res === false || res === -1) {
       // 如果没找到，就到原始数组中去找
       res = originMethod.apply(this.raw, args)
     }
     return res
   }
-}
+})
+
 
 // 接受第二个参数，表示是否是浅的， 默认不是浅的，是深层的
 // 添加第三个参数，表示是否是只读的，默认不是只读的，默认是可读可写

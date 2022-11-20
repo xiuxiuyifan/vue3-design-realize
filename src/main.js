@@ -474,9 +474,15 @@ import {
 // }, 1000)
 
 
+// const obj = {}
+
+// const arr = reactive([obj])
+
+// console.log(arr.includes(arr[0]))   //  得到的两个代理对象是不同的，所以会返回 false
+
+
 const obj = {}
 
 const arr = reactive([obj])
 
-console.log(arr.includes(arr[0]))   //  得到的两个代理对象是不同的，所以会返回 false
-
+console.log(arr.includes(obj))   //  那原始对象去 代理对象里面找肯定找不见  我们需要重写 includes方法

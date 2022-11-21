@@ -593,16 +593,32 @@ import {
 // }, 1000)
 
 
+// const p = reactive(new Map([
+//   ['key', 1]
+// ]))
+
+// effect(() => {
+//   p.forEach((value, key) => {
+//     console.log(value)
+//   })
+// })
+
+// setTimeout(() => {
+//   p.set('key', 2)
+// }, 1000)
+
+
 const p = reactive(new Map([
-  ['key', 1]
+  ['key1', 'value1'],
+  ['key2', 'value2']
 ]))
 
 effect(() => {
-  p.forEach((value, key) => {
-    console.log(value)
-  })
+  for (const [key, value] of p) {
+    console.log(key, value)
+  }
 })
 
 setTimeout(() => {
-  p.set('key', 2)
+  p.set('key3', 'value3')
 }, 1000)

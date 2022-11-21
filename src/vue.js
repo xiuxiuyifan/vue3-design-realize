@@ -147,7 +147,8 @@ const mutableInstrumentations = {
   },
   [Symbol.iterator]: iterationMethod,
   entries: iterationMethod,
-  values: valuesIterationMethod
+  values: valuesIterationMethod,
+  keys: keysIterationMethod
 }
 
 function iterationMethod() {
@@ -177,6 +178,32 @@ function iterationMethod() {
 }
 
 function valuesIterationMethod() {
+  // 获取原始对象
+  let target = this.raw
+  // 获取原始迭代器 方法
+  let ite = target.keys()
+  // 包裹函数
+  const wrap = val => typeof val === 'object' ? reactive(val) : val
+  // map 调用 for of 进行遍历的时候也要收集依赖
+  track(target, ITERATE_KEY)
+  return {
+    // 迭代器协议
+    next() {
+      // 调用原始的迭代器方法拿到 value 和 done
+      const { value, done } = ite.next()
+      return {
+        value: wrap(value),
+        done
+      }
+    },
+    // 可迭代协议
+    [Symbol.iterator]() {
+      return this
+    }
+  }
+}
+
+function keysIterationMethod() {
   // 获取原始对象
   let target = this.raw
   // 获取原始迭代器 方法

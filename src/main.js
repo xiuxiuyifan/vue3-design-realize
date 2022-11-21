@@ -575,20 +575,34 @@ import {
 //   p.set({ key: 2 }, { value: 2 })
 // }, 1000)
 
-const key = { key: 1 }
-const value = new Set([1, 2, 3])
+// const key = { key: 1 }
+// const value = new Set([1, 2, 3])
+
+// const p = reactive(new Map([
+//   [key, value]
+// ]))
+
+// effect(() => {
+//   p.forEach(function (value, key) {
+//     console.log(value.size)
+//   })
+// })
+
+// setTimeout(() => {
+//   p.get(key).delete(1)
+// }, 1000)
+
 
 const p = reactive(new Map([
-  [key, value]
+  ['key', 1]
 ]))
 
 effect(() => {
-  p.forEach(function (value, key) {
-    console.log(value.size)
+  p.forEach((value, key) => {
+    console.log(value)
   })
 })
 
 setTimeout(() => {
-  p.get(key).delete(1)
+  p.set('key', 2)
 }, 1000)
-

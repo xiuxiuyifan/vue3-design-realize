@@ -317,7 +317,12 @@ export function trigger(target, key, type, newVal) {
     }
   })
   // 只有新增的时候触发 iterateEffect
-  if (type === TriggerType.ADD || type === TriggerType.DELETE) {
+  if (
+    type === TriggerType.ADD ||
+    type === TriggerType.DELETE ||
+    // 如果 类型是 SET 并且原始对象是 Map 的时候也应该触发依赖
+    (type === TriggerType.SET && Object.prototype.toString.call(target) === '[object Map]')
+  ) {
     // 取出对象的 iterateEffect
     let iterateEffect = targetMap.get(ITERATE_KEY)
     // 把 iterate_key 相关的 effect 函数也拿出来

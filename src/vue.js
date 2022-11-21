@@ -47,6 +47,9 @@ const weakmap = new WeakMap()
 // ownKeys 获取的是一个对象的所有属于自己的键值  for in 不像是 操作对象的某个 key ，所以要进行单独区分开
 const ITERATE_KEY = Symbol()
 
+// map 数据类型设置 key ，并使用 keys 遍历的时候触发依赖时候的 key
+const MAP_KEY_ITERATE_KEY = Symbol()
+
 // 设置一个变量，代表是否进行跟踪，默认是 true 是可以跟踪的
 let shouldTrack = true
 
@@ -118,7 +121,7 @@ const mutableInstrumentations = {
   },
   set(key, value) {
     let target = this.raw
-    const had = target[key]
+    const had = target.has(key)
     // 获取老值
     let oldVal = target.get(key)
     //  如果是代理数据的话，那么他上面会有 raw 属性 ，
@@ -129,7 +132,7 @@ const mutableInstrumentations = {
     // 如果原来没有 则表示新增
     if (!had) {
       trigger(target, key, TriggerType.ADD)
-    } else if (oldVal !== val && (oldVal === oldVal && value === value)) {
+    } else if (oldVal !== value && (oldVal === oldVal && value === value)) {
       // 如果存在并且值变了，就是设置值
       trigger(target, key, TriggerType.SET)
     }
@@ -207,11 +210,11 @@ function keysIterationMethod() {
   // 获取原始对象
   let target = this.raw
   // 获取原始迭代器 方法
-  let ite = target.values()
+  let ite = target.keys()
   // 包裹函数
   const wrap = val => typeof val === 'object' ? reactive(val) : val
   // map 调用 for of 进行遍历的时候也要收集依赖
-  track(target, ITERATE_KEY)
+  track(target, MAP_KEY_ITERATE_KEY)
   return {
     // 迭代器协议
     next() {
@@ -397,6 +400,16 @@ export function trigger(target, key, type, newVal) {
       effectToRun.add(effectFn)
     }
   })
+  // 如果是添加或者删除，并且类型是 map 的时候
+  if ((type === TriggerType.ADD || type === TriggerType.DELETE) && (Object.prototype.toString.call(target) === '[object Map]')) {
+    // 取出相关 map_iterate_key 想管的 effect 执行
+    const iterateEffect = targetMap.get(MAP_KEY_ITERATE_KEY)
+    iterateEffect && iterateEffect.forEach((effectFn) => {
+      if (activeEffect !== effectFn) {
+        effectToRun.add(effectFn)
+      }
+    })
+  }
   // 只有新增的时候触发 iterateEffect
   if (
     type === TriggerType.ADD ||

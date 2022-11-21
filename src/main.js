@@ -669,5 +669,6 @@ effect(() => {
 })
 
 setTimeout(() => {
-  p.set('key2', 'value3')
+  // p.set('key2', 'value3')  // 不更新
+  p.set('key3', 'value3')  // 更新
 }, 1000)

@@ -107,13 +107,13 @@ const mutableInstrumentations = {
     // 获取原始对象
     let target = this.raw
     // 判断读取的 key 是否存在于原始对象上面
-    let had = target.get(key)
+    let had = target.has(key)
     // 依赖收集
     track(target, key)
     // 如果在原始的对象上面存在，那么就取一下
-    let ret = target.get(key)
+    let res = target.get(key)
     if (had) {
-      return typeof res === 'object' ? reactive(ret) : ret
+      return typeof res === 'object' ? reactive(res) : res
     }
   },
   set(key, value) {
@@ -134,13 +134,16 @@ const mutableInstrumentations = {
       trigger(target, key, TriggerType.SET)
     }
   },
-  forEach(callback) {
+  forEach(callback, thisArgs) {
     // 取得原始数据
+    const wrap = val => typeof val === 'object' ? reactive(val) : val
     const target = this.raw
     // 与 iterate_key 建立响应式联系
     track(target, ITERATE_KEY)
     // 调用原始对象的 forEach 方法
-    target.forEach(callback)
+    target.forEach((v, k) => {
+      callback.call(thisArgs, wrap(v), wrap(k), this)
+    })
   }
 }
 

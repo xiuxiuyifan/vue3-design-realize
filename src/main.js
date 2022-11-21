@@ -539,24 +539,38 @@ import {
 //   obj.set('key', 2)
 // }, 1000);
 
-const m = new Map()
+// const m = new Map()
 
-const p1 = reactive(m)
+// const p1 = reactive(m)
 
-const p2 = reactive(new Map())
+// const p2 = reactive(new Map())
 
-// 给 p1 设置一个键值对 p2  值是 p2
+// // 给 p1 设置一个键值对 p2  值是 p2
 
-p1.set('p2', p2)
+// p1.set('p2', p2)
 
-console.log(p1)
+// console.log(p1)
+// effect(() => {
+//   console.log(m.get('p2').size)
+// })
+
+
+// // 通过原来的值 也可以触发响应式数据 这样就显得有点混乱了
+// setTimeout(() => {
+//   m.get('p2').set('foo', 1)
+// }, 1000);
+
+
+const p = reactive(new Map([
+  [{ key: 1 }, { value: 1 }]
+]))
+
 effect(() => {
-  console.log(m.get('p2').size)
+  p.forEach((value, key) => {
+    console.log(value, key)
+  })
 })
 
-
-// 通过原来的值 也可以触发响应式数据 这样就显得有点混乱了
 setTimeout(() => {
-  m.get('p2').set('foo', 1)
-}, 1000);
-
+  p.set({ key: 2 }, { value: 2 })
+}, 1000)

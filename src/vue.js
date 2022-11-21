@@ -133,6 +133,14 @@ const mutableInstrumentations = {
       // 如果存在并且值变了，就是设置值
       trigger(target, key, TriggerType.SET)
     }
+  },
+  forEach(callback) {
+    // 取得原始数据
+    const target = this.raw
+    // 与 iterate_key 建立响应式联系
+    track(target, ITERATE_KEY)
+    // 调用原始对象的 forEach 方法
+    target.forEach(callback)
   }
 }
 

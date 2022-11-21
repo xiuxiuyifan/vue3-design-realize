@@ -608,13 +608,30 @@ import {
 // }, 1000)
 
 
+// const p = reactive(new Map([
+//   ['key1', 'value1'],
+//   ['key2', 'value2']
+// ]))
+
+// effect(() => {
+//   for (const [key, value] of p) {
+//     console.log(key, value)
+//   }
+// })
+
+// setTimeout(() => {
+//   p.set('key3', 'value3')
+// }, 1000)
+
+
+
 const p = reactive(new Map([
   ['key1', 'value1'],
   ['key2', 'value2']
 ]))
 
 effect(() => {
-  for (const [key, value] of p) {
+  for (const [key, value] of p.entries()) {
     console.log(key, value)
   }
 })
@@ -622,3 +639,4 @@ effect(() => {
 setTimeout(() => {
   p.set('key3', 'value3')
 }, 1000)
+

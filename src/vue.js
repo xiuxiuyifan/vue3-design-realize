@@ -145,28 +145,35 @@ const mutableInstrumentations = {
       callback.call(thisArgs, wrap(v), wrap(k), this)
     })
   },
-  [Symbol.iterator]() {
-    // 获取原始对象
-    let target = this.raw
-    // 获取原始迭代器
-    let ite = target[Symbol.iterator]()
-    // 包裹函数
-    const wrap = val => typeof val === 'object' && val !== null ? reactive(val) : val
-    // map 调用 for of 进行遍历的时候也要收集依赖
-    track(target, ITERATE_KEY)
-    return {
-      next() {
-        // 调用原始的迭代器方法拿到 value 和 done
-        const { value, done } = ite.next()
-        return {
-          value: value ? [wrap(value[0]), wrap(value[1])] : value,
-          done
-        }
+  [Symbol.iterator]: iterationMethod,
+  entries: iterationMethod
+}
+
+function iterationMethod() {
+  // 获取原始对象
+  let target = this.raw
+  // 获取原始迭代器
+  let ite = target[Symbol.iterator]()
+  // 包裹函数
+  const wrap = val => typeof val === 'object' && val !== null ? reactive(val) : val
+  // map 调用 for of 进行遍历的时候也要收集依赖
+  track(target, ITERATE_KEY)
+  return {
+    // 迭代器协议
+    next() {
+      // 调用原始的迭代器方法拿到 value 和 done
+      const { value, done } = ite.next()
+      return {
+        value: value ? [wrap(value[0]), wrap(value[1])] : value,
+        done
       }
+    },
+    // 可迭代协议
+    [Symbol.iterator]() {
+      return this
     }
   }
 }
-
 
 // 接受第二个参数，表示是否是浅的， 默认不是浅的，是深层的
 // 添加第三个参数，表示是否是只读的，默认不是只读的，默认是可读可写

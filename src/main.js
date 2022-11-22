@@ -12,7 +12,8 @@ import {
   shallowReadonly,
   ref,
   toRef,
-  toRefs
+  toRefs,
+  proxyRefs
 } from './vue.js'
 
 // import {
@@ -768,16 +769,40 @@ import {
 // }, 1000);
 
 
+// const obj = reactive({ foo: 1, bar: 2 })
+
+// const newObj = {
+//   ...toRefs(obj)
+// }
+
+// effect(() => {
+//   console.log(obj.foo)
+// })
+
+// setTimeout(() => {
+//   newObj.foo.value = 999
+// }, 1000);
+
+
 const obj = reactive({ foo: 1, bar: 2 })
 
-const newObj = {
+const newObj = proxyRefs({
   ...toRefs(obj)
-}
+})
+
 
 effect(() => {
-  console.log(obj.foo)
+  console.log(newObj.foo)
 })
 
 setTimeout(() => {
-  newObj.foo.value = 999
+  obj.foo = 999
 }, 1000);
+
+effect(() => {
+  console.log(obj.bar)
+})
+
+setTimeout(() => {
+  newObj.bar = 8888
+}, 2000);

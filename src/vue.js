@@ -641,6 +641,28 @@ export function toRefs(obj) {
   return ret
 }
 
+// 自动脱 ref
+
+export function proxyRefs(target) {
+  return new Proxy(target, {
+    get(target, key, receiver) {
+      const value = Reflect.get(target, key, receiver)
+      // 如果返回的值身上有 __v_isRef 则说明是 ref
+      return value.__v_isRef ? value.value : value
+    },
+    set(target, key, newVal, receiver) {
+      // 通过 target 读取真实的值
+      const value = target[key]
+      // 如果是 ref则设置对应 的  .value
+      if (value.__v_isRef) {
+        value.value = newVal
+        return true
+      }
+      return Reflect.set(target, key, newVal, receiver)
+    }
+  })
+}
+
 
 
 

@@ -684,17 +684,46 @@ import {
 //   refVal.value = 2
 // }, 1000);
 
+// const obj = reactive({ foo: 1, bar: 2 })
+
+// // 结构出一个新的对象，这个对象就不是响应式的
+// const newObj = {
+//   ...obj
+// }
+
+// effect(() => {
+//   console.log(newObj.foo)
+// })
+
+// setTimeout(() => {
+//   newObj.foo = 100
+// }, 1000);
+
+
 const obj = reactive({ foo: 1, bar: 2 })
 
-// 结构出一个新的对象，这个对象就不是响应式的
-const newObj = {
-  ...obj
+const newVal = {
+  foo: {
+    // 在属性访问器内部，真正的访问代理对象
+    get value() {
+      return obj.foo
+    }
+  },
+  bar: {
+    get value() {
+      return obj.bar
+    }
+  }
 }
 
+
+// 在 effect 函数中使用
+
 effect(() => {
-  console.log(newObj.foo)
+  // 用户使用的时候访问的是属性访问器
+  console.log(newVal.foo.value)
 })
 
 setTimeout(() => {
-  newObj.foo = 100
+  obj.foo = 999
 }, 1000);

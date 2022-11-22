@@ -10,7 +10,8 @@ import {
   shallowReactive,
   readonly,
   shallowReadonly,
-  ref
+  ref,
+  toRef
 } from './vue.js'
 
 // import {
@@ -700,27 +701,47 @@ import {
 // }, 1000);
 
 
+// const obj = reactive({ foo: 1, bar: 2 })
+
+// const newVal = {
+//   foo: {
+//     // 在属性访问器内部，真正的访问代理对象
+//     get value() {
+//       return obj.foo
+//     }
+//   },
+//   bar: {
+//     get value() {
+//       return obj.bar
+//     }
+//   }
+// }
+
+
+// // 在 effect 函数中使用
+
+// effect(() => {
+//   // 用户使用的时候访问的是属性访问器
+//   console.log(newVal.foo.value)
+// })
+
+// setTimeout(() => {
+//   obj.foo = 999
+// }, 1000);
+
+// 实现 toRef
+
+// 其实就是返回一个带有属性访问器的对象，然后在内部访问真实的代理对象
+
+
 const obj = reactive({ foo: 1, bar: 2 })
 
 const newVal = {
-  foo: {
-    // 在属性访问器内部，真正的访问代理对象
-    get value() {
-      return obj.foo
-    }
-  },
-  bar: {
-    get value() {
-      return obj.bar
-    }
-  }
+  foo: toRef(obj, 'foo'),
+  bar: toRef(obj, 'bar')
 }
 
-
-// 在 effect 函数中使用
-
 effect(() => {
-  // 用户使用的时候访问的是属性访问器
   console.log(newVal.foo.value)
 })
 

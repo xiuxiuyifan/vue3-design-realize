@@ -614,6 +614,15 @@ export function ref(val) {
   return reactive(wrapper)
 }
 
+export function toRef(obj, key) {
+  const wrapper = {
+    get value() {
+      // 在内部访问真正的代理对象
+      return obj[key]
+    }
+  }
+  return wrapper
+}
 
 
 

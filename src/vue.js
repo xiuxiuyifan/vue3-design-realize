@@ -624,6 +624,16 @@ export function toRef(obj, key) {
   return wrapper
 }
 
+// 不过是生成很多个同名键名的对象，然后这个对象拥有 get 属性访问器，在属性访问器内部会访问真实的代理对象的属性
+export function toRefs(obj) {
+  let ret = {}
+  for (let key in obj) {
+    // 调用 ref 生成带有 属性访问器的同名属性对象
+    ret[key] = toRef(obj, key)
+  }
+  return ret
+}
+
 
 
 

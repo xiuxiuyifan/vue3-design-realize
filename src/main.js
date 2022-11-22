@@ -11,7 +11,8 @@ import {
   readonly,
   shallowReadonly,
   ref,
-  toRef
+  toRef,
+  toRefs
 } from './vue.js'
 
 // import {
@@ -734,15 +735,32 @@ import {
 // 其实就是返回一个带有属性访问器的对象，然后在内部访问真实的代理对象
 
 
+// const obj = reactive({ foo: 1, bar: 2 })
+
+// const newVal = {
+//   foo: toRef(obj, 'foo'),
+//   bar: toRef(obj, 'bar')
+// }
+
+// effect(() => {
+//   console.log(newVal.foo.value)
+// })
+
+// setTimeout(() => {
+//   obj.foo = 999
+// }, 1000);
+
+
+// toRefs
+
 const obj = reactive({ foo: 1, bar: 2 })
 
-const newVal = {
-  foo: toRef(obj, 'foo'),
-  bar: toRef(obj, 'bar')
+const newObj = {
+  ...toRefs(obj)
 }
 
 effect(() => {
-  console.log(newVal.foo.value)
+  console.log(newObj.foo.value)
 })
 
 setTimeout(() => {

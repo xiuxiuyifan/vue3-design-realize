@@ -674,12 +674,27 @@ import {
 //   p.set('key3', 'value3')  // 更新
 // }, 1000)
 
-const refVal = ref(1)
+// const refVal = ref(1)
+
+// effect(() => {
+//   console.log(refVal.value)
+// })
+
+// setTimeout(() => {
+//   refVal.value = 2
+// }, 1000);
+
+const obj = reactive({ foo: 1, bar: 2 })
+
+// 结构出一个新的对象，这个对象就不是响应式的
+const newObj = {
+  ...obj
+}
 
 effect(() => {
-  console.log(refVal.value)
+  console.log(newObj.foo)
 })
 
 setTimeout(() => {
-  refVal.value = 2
+  newObj.foo = 100
 }, 1000);

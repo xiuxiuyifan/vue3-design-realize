@@ -9,7 +9,8 @@ import {
   watch,
   shallowReactive,
   readonly,
-  shallowReadonly
+  shallowReadonly,
+  ref
 } from './vue.js'
 
 // import {
@@ -657,18 +658,28 @@ import {
 // }, 1000)
 
 
-const p = reactive(new Map([
-  ['key1', 'value1'],
-  ['key2', 'value2']
-]))
+// const p = reactive(new Map([
+//   ['key1', 'value1'],
+//   ['key2', 'value2']
+// ]))
+
+// effect(() => {
+//   for (const key of p.keys()) {
+//     console.log(key)
+//   }
+// })
+
+// setTimeout(() => {
+//   // p.set('key2', 'value3')  // 不更新
+//   p.set('key3', 'value3')  // 更新
+// }, 1000)
+
+const refVal = ref(1)
 
 effect(() => {
-  for (const key of p.keys()) {
-    console.log(key)
-  }
+  console.log(refVal.value)
 })
 
 setTimeout(() => {
-  // p.set('key2', 'value3')  // 不更新
-  p.set('key3', 'value3')  // 更新
-}, 1000)
+  refVal.value = 2
+}, 1000);

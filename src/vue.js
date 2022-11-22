@@ -603,6 +603,17 @@ export function traverse(value, seen = new Set()) {
 }
 
 
+export function ref(val) {
+  const wrapper = {
+    value: val
+  }
+  // 在对象身上定义一个不可枚举的属性，用来区分是不是 ref 类型
+  Object.defineProperty(wrapper, '__v_isRef', {
+    value: true
+  })
+  return reactive(wrapper)
+}
+
 
 
 

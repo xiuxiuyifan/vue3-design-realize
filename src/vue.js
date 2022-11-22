@@ -619,8 +619,15 @@ export function toRef(obj, key) {
     get value() {
       // 在内部访问真正的代理对象
       return obj[key]
+    },
+    // 允许设置值
+    set value(val) {
+      obj[key] = val
     }
   }
+  Object.defineProperty(wrapper, '__v_isRef', {
+    value: true
+  })
   return wrapper
 }
 

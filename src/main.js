@@ -753,6 +753,21 @@ import {
 
 // toRefs
 
+// const obj = reactive({ foo: 1, bar: 2 })
+
+// const newObj = {
+//   ...toRefs(obj)
+// }
+
+// effect(() => {
+//   console.log(newObj.foo.value)
+// })
+
+// setTimeout(() => {
+//   obj.foo = 999
+// }, 1000);
+
+
 const obj = reactive({ foo: 1, bar: 2 })
 
 const newObj = {
@@ -760,9 +775,9 @@ const newObj = {
 }
 
 effect(() => {
-  console.log(newObj.foo.value)
+  console.log(obj.foo)
 })
 
 setTimeout(() => {
-  obj.foo = 999
+  newObj.foo.value = 999
 }, 1000);

@@ -2,16 +2,11 @@ import { renderer } from "./renderer.js";
 
 
 const vnode = {
-  type: 'div',
+  type: 'button',
   props: {
-    id: 'foo'
+    disabled: ''
   },
-  children: [
-    {
-      type: 'p',
-      children: 'hello'
-    }
-  ]
+  children: 'button'
 }
 
 renderer.render(vnode, document.getElementById('root'))

@@ -3,7 +3,8 @@ function createRenderer(options) {
   const {
     createElement,
     insert,
-    setElementText
+    setElementText,
+    patchProps
   } = options
 
 
@@ -14,8 +15,7 @@ function createRenderer(options) {
     if (vnode.props) {
       // 遍历 props
       for (const key in vnode.props) {
-        // 直接将树形设置到当前 DOM 节点上面
-        el[key] = vnode.props[key]
+        patchProps(el, key, null, vnode.props[key])
       }
     }
     // 判断 vnode 孩子的类型
@@ -63,6 +63,19 @@ function createRenderer(options) {
   }
 }
 
+/**
+ *
+ * @param {*} el DOM 元素
+ * @param {*} key props key 属性名
+ * @param {*} value props 属性值
+ * @returns
+ */
+function shouldSetAsProps(el, key, value) {
+  // 特殊处理
+  if (key === 'form' && el.tagName === 'INPUT') return false
+  return key in el
+}
+
 const domApi = {
   // 创建元素
   createElement(tag) {
@@ -81,6 +94,28 @@ const domApi = {
    */
   insert(el, parent, anchor = null) {
     parent.insertBefore(el, anchor)
+  },
+  /**
+   *
+   * @param {*} el 真实DOM
+   * @param {*} key 属性名
+   * @param {*} prevVal 上一次的值
+   * @param {*} nextVal 当前值
+   */
+  patchProps(el, key, prevVal, nextVal) {
+    // 区分是 DOM Properties 还是 HTML Attributes
+    if (shouldSetAsProps(el, key, nextVal)) {
+      const type = typeof el[key]
+      // 如果在 DOM 树形上的类型是 布尔值 并且当前拿到的 vnode 的值的 空字符串，那么久把值转成 true
+      if (type === 'boolean' && nextVal === '') {
+        el[key] = true
+      } else {
+        // 否则就用 vnode 里面的值
+        el[key] = nextVal
+      }
+    } else {
+      el.setAttribute(key, nextVal)
+    }
   }
 }
 

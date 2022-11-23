@@ -10,6 +10,14 @@ function createRenderer(options) {
   function mountElement(vnode, container) {
     // 根据虚拟节点的 type 创建出真实节点
     const el = createElement(vnode.type)
+    // 如果当前节点存在 props
+    if (vnode.props) {
+      // 遍历 props
+      for (const key in vnode.props) {
+        // 直接将树形设置到当前 DOM 节点上面
+        el[key] = vnode.props[key]
+      }
+    }
     // 判断 vnode 孩子的类型
     if (typeof vnode.children === 'string') {
       setElementText(el, vnode.children)

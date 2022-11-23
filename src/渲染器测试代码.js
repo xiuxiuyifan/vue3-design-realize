@@ -3,6 +3,9 @@ import { renderer } from "./renderer.js";
 
 const vnode = {
   type: 'div',
+  props: {
+    id: 'foo'
+  },
   children: [
     {
       type: 'p',

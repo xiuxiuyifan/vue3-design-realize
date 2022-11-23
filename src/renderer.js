@@ -13,6 +13,12 @@ function createRenderer(options) {
     // 判断 vnode 孩子的类型
     if (typeof vnode.children === 'string') {
       setElementText(el, vnode.children)
+    } else if (Array.isArray(vnode.children)) {
+      // 判断当 子 vnode 是数组的时候, 就需要循环遍历子节点，然后将子节点插入到刚才新建的
+      vnode.children.forEach(child => {
+        // 用 patch 函数把子节点挂载到父节点上面
+        patch(null, child, el)
+      })
     }
     // 将新创建的元素挂载到容器下面
     insert(el, container)

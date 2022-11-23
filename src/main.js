@@ -14,7 +14,7 @@ import {
   toRef,
   toRefs,
   proxyRefs
-} from './vue.js'
+} from './reactivity.js'
 
 // import {
 //   effect,

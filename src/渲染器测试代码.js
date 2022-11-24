@@ -4,7 +4,8 @@ import { renderer } from "./renderer.js";
 const vnode = {
   type: 'button',
   props: {
-    disabled: ''
+    disabled: '',
+    class: 'red'
   },
   children: 'button'
 }

@@ -104,7 +104,9 @@ const domApi = {
    */
   patchProps(el, key, prevVal, nextVal) {
     // 区分是 DOM Properties 还是 HTML Attributes
-    if (shouldSetAsProps(el, key, nextVal)) {
+    if (key === 'class') {
+      el.className = nextVal || ''
+    } else if (shouldSetAsProps(el, key, nextVal)) {
       const type = typeof el[key]
       // 如果在 DOM 树形上的类型是 布尔值 并且当前拿到的 vnode 的值的 空字符串，那么久把值转成 true
       if (type === 'boolean' && nextVal === '') {

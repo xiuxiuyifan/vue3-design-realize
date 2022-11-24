@@ -4,13 +4,14 @@ function createRenderer(options) {
     createElement,
     insert,
     setElementText,
-    patchProps
+    patchProps,
   } = options
 
 
   function mountElement(vnode, container) {
     // 根据虚拟节点的 type 创建出真实节点
-    const el = createElement(vnode.type)
+    // 让虚拟节点与真实 DOM 之间建立联系
+    const el = vnode.el = createElement(vnode.type)
     // 如果当前节点存在 props
     if (vnode.props) {
       // 遍历 props
@@ -32,6 +33,19 @@ function createRenderer(options) {
     insert(el, container)
   }
 
+  /**
+   * 接受一个虚拟节点，根据虚拟节点找到 真实节点 并根据真实节点 的 parent 将其移除
+   * @param {*} vnode
+   */
+  function unmount(vnode) {
+    // 获取真实 DOM 的父元素
+    const parent = vnode.el.parentNode
+    if (parent) {
+      // 移除真实 DOM
+      parent.removeChild(vnode.el)
+    }
+  }
+
 
 
   function patch(n1, n2, container) {
@@ -51,7 +65,8 @@ function createRenderer(options) {
       // 如果没有新的 vnode
       // 如果有老的 vnode
       if (container._vnode) {
-        container.innerHTML = ''
+        // 调用卸载函数，移除真实 DOM
+        unmount(container._vnode)
       }
     }
     // 每次挂载或者更新完成之后就把老的 vnode 保存在容器身上
@@ -76,6 +91,7 @@ function shouldSetAsProps(el, key, value) {
   return key in el
 }
 
+// DOM 操作 API
 const domApi = {
   // 创建元素
   createElement(tag) {

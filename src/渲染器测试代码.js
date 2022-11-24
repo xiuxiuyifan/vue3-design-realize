@@ -11,3 +11,7 @@ const vnode = {
 }
 
 renderer.render(vnode, document.getElementById('root'))
+
+setTimeout(() => {
+  renderer.render(null, document.getElementById('root'))
+}, 2000);

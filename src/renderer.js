@@ -49,11 +49,25 @@ function createRenderer(options) {
 
 
   function patch(n1, n2, container) {
-    // 没有老的 vnode, 表示初次挂载节点
-    if (!n1) {
-      mountElement(n2, container)
-    } else {
-      // 如果老的 vnode 存在则表示 打补丁
+    // 如果新老节点的 类型不一样，则移除老节点
+    if (n1 && n1.type !== n2.type) {
+      unmount(n1)
+      n1 = null
+    }
+    // 以下表示 新旧 虚拟节点描述的内容是一样的
+    const { type } = n2
+    if (typeof type === 'string') {
+      // 如果 vnode 的类型是 字符串则说明要渲染 的是普通标签
+      if (!n1) {
+        // 如果没有老节点则表示需要挂载元素
+        mountElement(n2, container)
+      } else {
+        // 新旧虚拟节点打补丁
+        patchElement(n1, n2)
+      }
+    } else if (typeof type === 'object') {
+      // 如果 vnode 的类型是 对象则说明要渲染 组件
+
     }
   }
 

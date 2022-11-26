@@ -133,8 +133,22 @@ const domApi = {
    * @param {*} nextVal 当前值
    */
   patchProps(el, key, prevVal, nextVal) {
+    //判断 props 中的参数如果是 on 开头的
+    if (/^on/.test(key)) {
+      // 先绑定事件
+      const eventName = key.slice(2).toLowerCase()
+      const invoker = el._vei = (e) => {
+        // 如果发现新的值是一个数组，则循环遍历它
+        if (Array.isArray(nextVal)) {
+          nextVal.forEach((fn) => {
+            fn(e)
+          })
+        }
+      }
+      el.addEventListener(eventName, invoker)
+    }
     // 区分是 DOM Properties 还是 HTML Attributes
-    if (key === 'class') {
+    else if (key === 'class') {
       el.className = nextVal || ''
     } else if (shouldSetAsProps(el, key, nextVal)) {
       const type = typeof el[key]

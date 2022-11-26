@@ -135,17 +135,37 @@ const domApi = {
   patchProps(el, key, prevVal, nextVal) {
     //判断 props 中的参数如果是 on 开头的
     if (/^on/.test(key)) {
-      // 先绑定事件
+      // 在 el 上面存储一个对象用来保存事件处理函数
+      const invokers = el._vei || (el._vei = {})
+      // 获取对应事件名
       const eventName = key.slice(2).toLowerCase()
-      const invoker = el._vei = (e) => {
-        // 如果发现新的值是一个数组，则循环遍历它
-        if (Array.isArray(nextVal)) {
-          nextVal.forEach((fn) => {
-            fn(e)
-          })
+      // 获取之前的事件处理函数
+      let invoker = invokers[key]
+      // props 中有新的事件处理函数
+      if (nextVal) {
+        // 如果缓存中没有老的事件处理函数，就需要创建新的
+        if (!invoker) {
+          // 创建一个事件处理函数
+          invoker = el._vei[key] = (e) => {
+            // 将真正的事件函数挂载到 invoker.value 上面，在触发事件的时候再去调用，
+            if (Array.isArray(invoker.value)) {
+              // 如果是数组则 依次遍历进行调用
+              invoker.value.forEach(fn => fn(e))
+            } else {
+              invoker.value(e)
+            }
+          }
+          invoker.value = nextVal
+          el.addEventListener(eventName, invoker)
+        } else {
+          // 有新的事件处理函数，就更新原来的值
+          invoker.value = nextVal
         }
       }
-      el.addEventListener(eventName, invoker)
+      // 没有新的事件处理函数，但是可以获取到老的事件处理函数，则说明是要移除老的事件
+      else if (invoker) {
+        el.removeEventListener(eventName, invoker)
+      }
     }
     // 区分是 DOM Properties 还是 HTML Attributes
     else if (key === 'class') {

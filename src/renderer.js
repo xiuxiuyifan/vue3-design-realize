@@ -33,6 +33,13 @@ function createRenderer(options) {
     insert(el, container)
   }
 
+  function patchElement(n1, n2) {
+    // 这里先只实现 patchProps
+    for (const key in n2.props) {
+      patchProps(n1.el, key, n1.props[key], n2.props[key])
+    }
+  }
+
   /**
    * 接受一个虚拟节点，根据虚拟节点找到 真实节点 并根据真实节点 的 parent 将其移除
    * @param {*} vnode
@@ -74,6 +81,7 @@ function createRenderer(options) {
   function render(vnode, container) {
     // 如果有新的 vnode
     if (vnode) {
+      // 把挂载到 DOM 节点上的 vnode 当做老的 vnode 传递给 patch 函数
       patch(container._vnode, vnode, container)
     } else {
       // 如果没有新的 vnode
@@ -147,6 +155,9 @@ const domApi = {
         if (!invoker) {
           // 创建一个事件处理函数
           invoker = el._vei[key] = (e) => {
+            // 如果事件执行的实现小于绑定的时间，则不执行事件处理函数
+            // 因为默认情况下的逻辑是  事件函数触发的时间应该大于事件绑定的时间  先帮事件 后才能执行嘛
+            if (e.timeStamp < invoker.attached) return
             // 将真正的事件函数挂载到 invoker.value 上面，在触发事件的时候再去调用，
             if (Array.isArray(invoker.value)) {
               // 如果是数组则 依次遍历进行调用
@@ -156,6 +167,8 @@ const domApi = {
             }
           }
           invoker.value = nextVal
+          // 添加 attached 属性 存储事件函数被绑定时候的时间
+          invoker.attached = performance.now()
           el.addEventListener(eventName, invoker)
         } else {
           // 有新的事件处理函数，就更新原来的值

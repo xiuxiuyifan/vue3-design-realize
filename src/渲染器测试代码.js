@@ -57,9 +57,52 @@ import { effect, ref } from './reactivity.js'
 // })
 
 
-// 老的 vnode
-// 子节点是 数组
+// // 老的 vnode
+// // 子节点是 数组
+// const oldVnode = {
+//   type: 'div',
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     }
+//   ]
+// }
+
+// renderer.render(oldVnode, document.getElementById('root'))
+
+
+// // 新的虚拟节点
+// const newVnode = {
+//   type: 'div',
+//   children: 'text'
+// }
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
+// 老的 vnode 是字符串
 const oldVnode = {
+  type: 'div',
+  children: 'text'
+}
+// 老的 vnode 是 null
+// const oldVnode = {
+//   type: 'div',
+//   children: null
+// }
+
+renderer.render(oldVnode, document.getElementById('root'))
+
+
+// 新的是子虚拟节点是数组
+const newVnode = {
   type: 'div',
   children: [
     {
@@ -71,15 +114,6 @@ const oldVnode = {
       children: 'p2'
     }
   ]
-}
-
-renderer.render(oldVnode, document.getElementById('root'))
-
-
-// 新的虚拟节点
-const newVnode = {
-  type: 'div',
-  children: 'text'
 }
 
 setTimeout(() => {

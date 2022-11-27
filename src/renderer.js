@@ -70,6 +70,17 @@ function createRenderer(options) {
       }
       // 当卸载完成之后将新的文本节点设置给容器元素
       setElementText(container, n2.children)
+    } else if (Array.isArray(n2.children)) {
+      // 新的虚拟节点是数组
+      if (Array.isArray(n1.children)) {
+        // 如果老节点也是一组 数组
+        // 则进入核心的 Diff 算法
+      } else {
+        // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可
+        setElementText(container, '')
+        // 创建新的节点
+        n2.children.forEach(c => patch(null, c, container))
+      }
     }
   }
 

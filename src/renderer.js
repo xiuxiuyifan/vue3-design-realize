@@ -103,6 +103,12 @@ function createRenderer(options) {
             patch(null, newChildren[i], container)
           }
         }
+        if (oldLen > newLen) {
+          // 老节点的长度大于新节点， 则说明要卸载节点 从公共长度，一直到老节点的长度
+          for (let i = commonLength; i < oldLen; i++) {
+            unmount(oldChildren[i])
+          }
+        }
       } else {
         // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可
         setElementText(container, '')

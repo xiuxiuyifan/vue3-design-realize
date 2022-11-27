@@ -85,10 +85,11 @@ function createRenderer(options) {
       if (Array.isArray(n1.children)) {
         // 如果老节点也是一组 数组
         // 则进入核心的 Diff 算法
-        // 粗暴的  处理新老节点都是数组的情况
-        // 先循环卸载老节点， 然后在循环挂载新节点
-        n1.children.forEach(c => unmount(c))
-        n2.children.forEach(c => patch(null, c, container))
+        const oldChildren = n1.children
+        const newChildren = n2.children
+        for (let i = 0; i < oldChildren.length; i++) {
+          patch(oldChildren[i], newChildren[i])
+        }
       } else {
         // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可
         setElementText(container, '')

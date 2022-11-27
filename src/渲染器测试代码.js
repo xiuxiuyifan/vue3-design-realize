@@ -222,7 +222,29 @@ import { effect, ref } from './reactivity.js'
 // }, 2000);
 
 
-const textVnode = {
+// const textVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p3'
+//     }
+//   ]
+// }
+
+// renderer.render(textVnode, document.getElementById('root'))
+
+
+
+const oldVnode = {
   type: Fragment,
   children: [
     {
@@ -240,7 +262,27 @@ const textVnode = {
   ]
 }
 
-renderer.render(textVnode, document.getElementById('root'))
+const newVnode = {
+  type: Fragment,
+  children: [
+    {
+      type: 'p',
+      children: 'p4'
+    },
+    {
+      type: 'p',
+      children: 'p5'
+    },
+    {
+      type: 'p',
+      children: 'p6'
+    }
+  ]
+}
+renderer.render(oldVnode, document.getElementById('root'))
 
+setTimeout(() => {
+  renderer.render(newVnode, document.getElementById('root'))
+}, 2000);
 
 

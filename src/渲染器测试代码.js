@@ -121,38 +121,74 @@ import { effect, ref } from './reactivity.js'
 // }, 2000);
 
 
+// // 老的 vnode 是 null
+// const oldVnode = {
+//   type: 'div',
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     }
+//   ]
+// }
+
+// renderer.render(oldVnode, document.getElementById('root'))
+
+
+// // 新的是子虚拟节点是数组
+// const newVnode = {
+//   type: 'div',
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p3'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p4'
+//     }
+//   ]
+// }
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
 // 老的 vnode 是 null
+// const oldVnode = {
+//   type: 'div',
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     }
+//   ]
+// }
+
+// 老的 vnode 是 文本
 const oldVnode = {
   type: 'div',
-  children: [
-    {
-      type: 'p',
-      children: 'p1'
-    },
-    {
-      type: 'p',
-      children: 'p2'
-    }
-  ]
+  children: 'old text'
 }
 
 renderer.render(oldVnode, document.getElementById('root'))
 
 
-// 新的是子虚拟节点是数组
+// 新的是子虚拟节点是 null
 const newVnode = {
   type: 'div',
-  children: [
-    {
-      type: 'p',
-      children: 'p3'
-    },
-    {
-      type: 'p',
-      children: 'p4'
-    }
-  ]
+  children: null
 }
+
 
 setTimeout(() => {
   renderer.render(newVnode, document.getElementById('root'))

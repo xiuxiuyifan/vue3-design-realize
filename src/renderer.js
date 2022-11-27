@@ -85,6 +85,16 @@ function createRenderer(options) {
         // 创建新的节点
         n2.children.forEach(c => patch(null, c, container))
       }
+    } else {
+      // 代码运行到这里，就是新子节点不存在
+      if (Array.isArray(n1.children)) {
+        // 如果老节点是数组，则逐一卸载
+        n1.children.forEach(c => unmount(c))
+      } else if (typeof n1.children === 'string') {
+        // 旧节点是文本，则只需要清空旧节点即可
+        setElementText(container, '')
+      }
+      // 新老节点 都是 null 则什么都不需要做
     }
   }
 

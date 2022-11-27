@@ -10,7 +10,8 @@ function createRenderer(options) {
     insert,
     setElementText,
     patchProps,
-    createText
+    createText,
+    setText
   } = options
 
 
@@ -144,7 +145,12 @@ function createRenderer(options) {
         const el = n2.el = createText(n2.children)
         insert(el, container)
       } else {
-
+        // 如果有 vnode
+        // 则把老的节点更新成新的即可
+        const el = n2.el = n1.el  // 复用 DOM 元素
+        if (n1.children !== n2.children) {
+          setText(el, n2.children)
+        }
       }
     } else if (typeof type === 'object') {
       // 如果 vnode 的类型是 对象则说明要渲染 组件

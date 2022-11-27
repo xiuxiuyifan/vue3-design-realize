@@ -195,10 +195,28 @@ import { effect, ref } from './reactivity.js'
 // }, 2000);
 
 
-// 渲染一个文本节点
+// // 渲染一个文本节点
+// const textVnode = {
+//   type: Text,
+//   children: 'textVnode'
+// }
+
+// renderer.render(textVnode, document.getElementById('root'))
+
+
+// 渲染文本节点
 const textVnode = {
   type: Text,
   children: 'textVnode'
 }
 
 renderer.render(textVnode, document.getElementById('root'))
+
+
+const newTextVnode = {
+  type: Text,
+  children: 'newText'
+}
+setTimeout(() => {
+  renderer.render(newTextVnode, document.getElementById('root'))
+}, 2000);

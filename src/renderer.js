@@ -87,8 +87,21 @@ function createRenderer(options) {
         // 则进入核心的 Diff 算法
         const oldChildren = n1.children
         const newChildren = n2.children
-        for (let i = 0; i < oldChildren.length; i++) {
+        // 老节点的长度
+        const oldLen = oldChildren.length
+        // 新节点的长度
+        const newLen = newChildren.length
+        // 公共长度 既两者中较短的那一组
+        const commonLength = Math.min(oldLen, newLen)
+        // 更新节点
+        for (let i = 0; i < commonLength; i++) {
           patch(oldChildren[i], newChildren[i])
+        }
+        if (newLen > oldLen) {
+          // 如果 新的子节点的长度大于 老的子节点的长度，则说明是要挂载节点， 从公共长度一直到最长的都认为是新节点
+          for (let i = commonLength; i < newLen; i++) {
+            patch(null, newChildren[i], container)
+          }
         }
       } else {
         // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可

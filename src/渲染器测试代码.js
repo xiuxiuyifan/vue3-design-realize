@@ -244,6 +244,48 @@ import { effect, ref } from './reactivity.js'
 
 
 
+// const oldVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p3'
+//     }
+//   ]
+// }
+
+// const newVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p4'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p5'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p6'
+//     }
+//   ]
+// }
+// renderer.render(oldVnode, document.getElementById('root'))
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
 const oldVnode = {
   type: Fragment,
   children: [
@@ -276,6 +318,14 @@ const newVnode = {
     {
       type: 'p',
       children: 'p6'
+    },
+    {
+      type: 'p',
+      children: 'p7'
+    },
+    {
+      type: 'p',
+      children: 'p8'
     }
   ]
 }

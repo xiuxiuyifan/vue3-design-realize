@@ -30,29 +30,58 @@ import { effect, ref } from './reactivity.js'
 
 // renderer.render(vnode, document.getElementById('root'))
 
-const bol = ref(false)
+// const bol = ref(false)
 
-effect(() => {
-  const vnode = {
-    type: 'div',
-    props: bol.value ? {
-      onClick: () => {
-        alert('父元素 clicked')
-      }
-    } : {},
-    children: [
-      {
-        type: 'p',
-        props: {
-          onClick: () => {
-            console.log('hiii')
-            bol.value = true
-          }
-        },
-        children: 'text'
-      }
-    ]
-  }
-  renderer.render(vnode, document.getElementById('root'))
-})
+// effect(() => {
+//   const vnode = {
+//     type: 'div',
+//     props: bol.value ? {
+//       onClick: () => {
+//         alert('父元素 clicked')
+//       }
+//     } : {},
+//     children: [
+//       {
+//         type: 'p',
+//         props: {
+//           onClick: () => {
+//             console.log('hiii')
+//             bol.value = true
+//           }
+//         },
+//         children: 'text'
+//       }
+//     ]
+//   }
+//   renderer.render(vnode, document.getElementById('root'))
+// })
 
+
+// 老的 vnode
+// 子节点是 数组
+const oldVnode = {
+  type: 'div',
+  children: [
+    {
+      type: 'p',
+      children: 'p1'
+    },
+    {
+      type: 'p',
+      children: 'p2'
+    }
+  ]
+}
+
+renderer.render(oldVnode, document.getElementById('root'))
+
+
+// 新的虚拟节点
+const newVnode = {
+  type: 'div',
+  children: 'text'
+}
+
+setTimeout(() => {
+  renderer.render(newVnode, document.getElementById('root'))
+}, 2000);

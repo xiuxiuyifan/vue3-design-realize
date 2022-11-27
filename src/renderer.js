@@ -34,9 +34,42 @@ function createRenderer(options) {
   }
 
   function patchElement(n1, n2) {
-    // 这里先只实现 patchProps
-    for (const key in n2.props) {
-      patchProps(n1.el, key, n1.props[key], n2.props[key])
+    // 老的真实DOM的复用
+    const el = n2.el = n1.el
+    const oldProps = n1.props
+    const newProps = n2.props
+
+    // 更新 props
+    // 先用 遍历 新的 props 用新的 props 替换老的 props 里面的属性
+    for (const key in newProps) {
+      // 如果新旧 props 的值不相等
+      if (newProps[key] !== oldProps[key]) {
+        patchProps(el, key, oldProps[key], newProps[key])
+      }
+    }
+    // 再遍历老的 props 删除新的中没有的属性
+    for (const key in oldProps) {
+      // 老属性中有 ，新属性中没有的，将其删除
+      if (!(key in newProps)) {
+        patchProps(el, key, oldProps[key], null)
+      }
+    }
+
+    // 更新 children
+    patchChildren(n1, n2, el)
+  }
+
+  function patchChildren(n1, n2, container) {
+    // 先判断新子节点的类型
+    if (typeof n2.children === 'string') {
+      // 如果新节点的类型是 字符串
+      if (Array.isArray(n1.children)) {
+        // 如果老节点是一个数组
+        // 则需要逐个卸载
+        n1.children.forEach(c => unmount(c))
+      }
+      // 当卸载完成之后将新的文本节点设置给容器元素
+      setElementText(container, n2.children)
     }
   }
 

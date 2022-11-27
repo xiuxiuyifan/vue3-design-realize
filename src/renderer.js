@@ -3,6 +3,9 @@ export const Text = Symbol()
 // 注释接单类型
 export const Comment = Symbol()
 
+// Fragment 类型
+export const Fragment = Symbol()
+
 function createRenderer(options) {
 
   const {
@@ -110,6 +113,12 @@ function createRenderer(options) {
    * @param {*} vnode
    */
   function unmount(vnode) {
+    // 卸载的时候如果发现vnode 的类型是 Fragment 的话，则需要卸载 children
+    if (vnode.type === Fragment) {
+      // 逐一卸载 Fragment 的真实子节点
+      vnode.children.forEach(c => unmount(c))
+      return
+    }
     // 获取真实 DOM 的父元素
     const parent = vnode.el.parentNode
     if (parent) {
@@ -151,6 +160,14 @@ function createRenderer(options) {
         if (n1.children !== n2.children) {
           setText(el, n2.children)
         }
+      }
+    } else if (type === Fragment) {
+      if (!n1) {
+        // 如果不存在 老虚拟节点， 则需要挂载新节点
+        n2.children.forEach(c => patch(null, c, container))
+      } else {
+        // 如果有老节点，则需要更新 Fragment 的 children 即可
+        patchChildren(n1, n2, container)
       }
     } else if (typeof type === 'object') {
       // 如果 vnode 的类型是 对象则说明要渲染 组件

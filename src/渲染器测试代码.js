@@ -1,4 +1,4 @@
-import { renderer, Text } from "./renderer.js";
+import { Fragment, renderer, Text } from "./renderer.js";
 import { effect, ref } from './reactivity.js'
 
 
@@ -205,18 +205,42 @@ import { effect, ref } from './reactivity.js'
 
 
 // 渲染文本节点
+// const textVnode = {
+//   type: Text,
+//   children: 'textVnode'
+// }
+
+// renderer.render(textVnode, document.getElementById('root'))
+
+
+// const newTextVnode = {
+//   type: Text,
+//   children: 'newText'
+// }
+// setTimeout(() => {
+//   renderer.render(newTextVnode, document.getElementById('root'))
+// }, 2000);
+
+
 const textVnode = {
-  type: Text,
-  children: 'textVnode'
+  type: Fragment,
+  children: [
+    {
+      type: 'p',
+      children: 'p1'
+    },
+    {
+      type: 'p',
+      children: 'p2'
+    },
+    {
+      type: 'p',
+      children: 'p3'
+    }
+  ]
 }
 
 renderer.render(textVnode, document.getElementById('root'))
 
 
-const newTextVnode = {
-  type: Text,
-  children: 'newText'
-}
-setTimeout(() => {
-  renderer.render(newTextVnode, document.getElementById('root'))
-}, 2000);
+

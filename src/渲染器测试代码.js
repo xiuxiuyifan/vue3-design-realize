@@ -1,4 +1,4 @@
-import { renderer } from "./renderer.js";
+import { renderer, Text } from "./renderer.js";
 import { effect, ref } from './reactivity.js'
 
 
@@ -174,22 +174,31 @@ import { effect, ref } from './reactivity.js'
 //   ]
 // }
 
-// 老的 vnode 是 文本
-const oldVnode = {
-  type: 'div',
-  children: 'old text'
+// // 老的 vnode 是 文本
+// const oldVnode = {
+//   type: 'div',
+//   children: 'old text'
+// }
+
+// renderer.render(oldVnode, document.getElementById('root'))
+
+
+// // 新的是子虚拟节点是 null
+// const newVnode = {
+//   type: 'div',
+//   children: null
+// }
+
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
+// 渲染一个文本节点
+const textVnode = {
+  type: Text,
+  children: 'textVnode'
 }
 
-renderer.render(oldVnode, document.getElementById('root'))
-
-
-// 新的是子虚拟节点是 null
-const newVnode = {
-  type: 'div',
-  children: null
-}
-
-
-setTimeout(() => {
-  renderer.render(newVnode, document.getElementById('root'))
-}, 2000);
+renderer.render(textVnode, document.getElementById('root'))

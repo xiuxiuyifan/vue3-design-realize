@@ -1,3 +1,8 @@
+// 文本节点类型
+export const Text = Symbol()
+// 注释接单类型
+export const Comment = Symbol()
+
 function createRenderer(options) {
 
   const {
@@ -5,6 +10,7 @@ function createRenderer(options) {
     insert,
     setElementText,
     patchProps,
+    createText
   } = options
 
 
@@ -130,9 +136,18 @@ function createRenderer(options) {
         // 新旧虚拟节点打补丁
         patchElement(n1, n2)
       }
+    } else if (type === Text) {
+      // 如果 new vnode 的类型是文本节点
+      if (!n1) {
+        // 如果没有老节点
+        // 创建新的文本节点挂载到容器上面
+        const el = n2.el = createText(n2.children)
+        insert(el, container)
+      } else {
+
+      }
     } else if (typeof type === 'object') {
       // 如果 vnode 的类型是 对象则说明要渲染 组件
-
     }
   }
 
@@ -253,6 +268,14 @@ const domApi = {
     } else {
       el.setAttribute(key, nextVal)
     }
+  },
+  // 创建文本节点
+  createText(text) {
+    return document.createTextNode(text)
+  },
+  // 设置文本节点的内容
+  setText(el, text) {
+    el.nodeValue = text
   }
 }
 

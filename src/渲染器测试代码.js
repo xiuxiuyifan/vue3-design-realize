@@ -336,20 +336,57 @@ import { effect, ref } from './reactivity.js'
 // }, 2000);
 
 
+// const oldVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p1'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p2'
+//     },
+//     {
+//       type: 'p',
+//       children: 'p3'
+//     }
+//   ]
+// }
+
+// const newVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: 'p4'
+//     }
+//   ]
+// }
+// renderer.render(oldVnode, document.getElementById('root'))
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
 const oldVnode = {
   type: Fragment,
   children: [
     {
       type: 'p',
-      children: 'p1'
+      children: '1',
+      key: '1'
     },
     {
       type: 'p',
-      children: 'p2'
+      children: '2',
+      key: '2'
     },
     {
       type: 'p',
-      children: 'p3'
+      children: 'hello',
+      key: '3'
     }
   ]
 }
@@ -359,8 +396,19 @@ const newVnode = {
   children: [
     {
       type: 'p',
-      children: 'p4'
-    }
+      children: 'world',
+      key: '3'
+    },
+    {
+      type: 'p',
+      children: '1',
+      key: '1'
+    },
+    {
+      type: 'p',
+      children: '2',
+      key: '2'
+    },
   ]
 }
 renderer.render(oldVnode, document.getElementById('root'))

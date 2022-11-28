@@ -87,26 +87,17 @@ function createRenderer(options) {
         // 则进入核心的 Diff 算法
         const oldChildren = n1.children
         const newChildren = n2.children
-        // 老节点的长度
-        const oldLen = oldChildren.length
-        // 新节点的长度
-        const newLen = newChildren.length
-        // 公共长度 既两者中较短的那一组
-        const commonLength = Math.min(oldLen, newLen)
-        // 更新节点
-        for (let i = 0; i < commonLength; i++) {
-          patch(oldChildren[i], newChildren[i])
-        }
-        if (newLen > oldLen) {
-          // 如果 新的子节点的长度大于 老的子节点的长度，则说明是要挂载节点， 从公共长度一直到最长的都认为是新节点
-          for (let i = commonLength; i < newLen; i++) {
-            patch(null, newChildren[i], container)
-          }
-        }
-        if (oldLen > newLen) {
-          // 老节点的长度大于新节点， 则说明要卸载节点 从公共长度，一直到老节点的长度
-          for (let i = commonLength; i < oldLen; i++) {
-            unmount(oldChildren[i])
+        // 遍历当前的 新的虚拟 DOM
+        for (let i = 0; i < newChildren.length; i++) {
+          const newVNode = newChildren[i]
+          // 再遍历旧的 vnode
+          for (let j = 0; j < oldChildren.length; j++) {
+            const oldVNode = oldChildren[j]
+            if (newVNode.key === oldVNode.key) {
+              // 如果新旧 vnode 的 key 相同，则需要调用 patch 函数 进行打补丁
+              patch(oldVNode, newVNode, container)
+              break
+            }
           }
         }
       } else {

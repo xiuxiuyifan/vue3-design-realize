@@ -100,6 +100,13 @@ function createRenderer(options) {
               patch(oldVNode, newVNode, container)
               if (j < lastIndex) {
                 // 如果当前节点在 旧节点中的位置小于 最大索引值，则说明该节点的真实节点需要移动
+                // 获取新节点的前一个节点  新节点的顺序，就是最终要移动完成的位置，找到他的前一个节点
+                let preVNode = newChildren[i - 1]
+                if (preVNode) {
+                  // 获取preVNode 对应真实节点的下一个节点， 并将其最为锚点插入
+                  const anchor = preVNode.el.nextSibling
+                  insert(newVNode.el, container, anchor)
+                }
               } else {
                 // 如果当前节点在旧节点中的位置 不小于最大索引值，则需要更新 lastIndex 的值
                 lastIndex = j

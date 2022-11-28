@@ -18,7 +18,7 @@ function createRenderer(options) {
   } = options
 
 
-  function mountElement(vnode, container) {
+  function mountElement(vnode, container, anchor) {
     // 根据虚拟节点的 type 创建出真实节点
     // 让虚拟节点与真实 DOM 之间建立联系
     const el = vnode.el = createElement(vnode.type)
@@ -40,7 +40,7 @@ function createRenderer(options) {
       })
     }
     // 将新创建的元素挂载到容器下面
-    insert(el, container)
+    insert(el, container, anchor)
   }
 
   function patchElement(n1, n2) {
@@ -92,10 +92,14 @@ function createRenderer(options) {
         // 遍历当前的 新的虚拟 DOM
         for (let i = 0; i < newChildren.length; i++) {
           const newVNode = newChildren[i]
+          // 在内层循环中定义一个表示，代表是否在旧的节点中找到可以复用的节点 , 默认为没找到
+          let find = false
           // 再遍历旧的 vnode
           for (let j = 0; j < oldChildren.length; j++) {
             const oldVNode = oldChildren[j]
             if (newVNode.key === oldVNode.key) {
+              // 找到后变为 true
+              find = true
               // 如果新旧 vnode 的 key 相同，则需要调用 patch 函数 进行打补丁
               patch(oldVNode, newVNode, container)
               if (j < lastIndex) {
@@ -113,6 +117,21 @@ function createRenderer(options) {
               }
               break
             }
+          }
+          if (!find) {
+            // 如果在老的一组节点中没找到 当前节点，则说明是要新增的元素
+            // 先获取正确的挂载位置，记录一下新节点的前一个节点
+            let preVNode = newChildren[i - 1]
+            let anchor = null
+            if (preVNode) {
+              // 则取下一个兄弟节点作为 锚点
+              anchor = preVNode.el.nextSibling
+            } else {
+              // 如果没有前一个 vnode ，说明需要挂载的节点是第一个子节点，则取容器的 firstChild 作为锚点
+              anchor = container.firstChild
+            }
+            // 挂载 newVNode
+            patch(null, newVNode, container, anchor)
           }
         }
       } else {
@@ -155,7 +174,7 @@ function createRenderer(options) {
 
 
 
-  function patch(n1, n2, container) {
+  function patch(n1, n2, container, anchor) {
     // 如果新老节点的 类型不一样，则移除老节点
     if (n1 && n1.type !== n2.type) {
       unmount(n1)
@@ -167,7 +186,7 @@ function createRenderer(options) {
       // 如果 vnode 的类型是 字符串则说明要渲染 的是普通标签
       if (!n1) {
         // 如果没有老节点则表示需要挂载元素
-        mountElement(n2, container)
+        mountElement(n2, container, anchor)
       } else {
         // 新旧虚拟节点打补丁
         patchElement(n1, n2)

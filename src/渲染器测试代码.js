@@ -406,6 +406,11 @@ const newVnode = {
     },
     {
       type: 'p',
+      children: '4',
+      key: '4'
+    },
+    {
+      type: 'p',
       children: '2',
       key: '2'
     },

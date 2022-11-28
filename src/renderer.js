@@ -87,6 +87,8 @@ function createRenderer(options) {
         // 则进入核心的 Diff 算法
         const oldChildren = n1.children
         const newChildren = n2.children
+        // 用来存储遍历过程中最大的索引值
+        let lastIndex = 0
         // 遍历当前的 新的虚拟 DOM
         for (let i = 0; i < newChildren.length; i++) {
           const newVNode = newChildren[i]
@@ -96,6 +98,12 @@ function createRenderer(options) {
             if (newVNode.key === oldVNode.key) {
               // 如果新旧 vnode 的 key 相同，则需要调用 patch 函数 进行打补丁
               patch(oldVNode, newVNode, container)
+              if (j < lastIndex) {
+                // 如果当前节点在 旧节点中的位置小于 最大索引值，则说明该节点的真实节点需要移动
+              } else {
+                // 如果当前节点在旧节点中的位置 不小于最大索引值，则需要更新 lastIndex 的值
+                lastIndex = j
+              }
               break
             }
           }

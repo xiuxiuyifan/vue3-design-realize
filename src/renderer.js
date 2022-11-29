@@ -85,66 +85,7 @@ function createRenderer(options) {
       if (Array.isArray(n1.children)) {
         // 如果老节点也是一组 数组
         // 则进入核心的 Diff 算法
-        const oldChildren = n1.children
-        const newChildren = n2.children
-        // 用来存储遍历过程中最大的索引值
-        let lastIndex = 0
-        // 遍历当前的 新的虚拟 DOM
-        for (let i = 0; i < newChildren.length; i++) {
-          const newVNode = newChildren[i]
-          // 在内层循环中定义一个表示，代表是否在旧的节点中找到可以复用的节点 , 默认为没找到
-          let find = false
-          // 再遍历旧的 vnode
-          for (let j = 0; j < oldChildren.length; j++) {
-            const oldVNode = oldChildren[j]
-            if (newVNode.key === oldVNode.key) {
-              // 找到后变为 true
-              find = true
-              // 如果新旧 vnode 的 key 相同，则需要调用 patch 函数 进行打补丁
-              patch(oldVNode, newVNode, container)
-              if (j < lastIndex) {
-                // 如果当前节点在 旧节点中的位置小于 最大索引值，则说明该节点的真实节点需要移动
-                // 获取新节点的前一个节点  新节点的顺序，就是最终要移动完成的位置，找到他的前一个节点
-                let preVNode = newChildren[i - 1]
-                if (preVNode) {
-                  // 获取preVNode 对应真实节点的下一个节点， 并将其最为锚点插入
-                  const anchor = preVNode.el.nextSibling
-                  insert(newVNode.el, container, anchor)
-                }
-              } else {
-                // 如果当前节点在旧节点中的位置 不小于最大索引值，则需要更新 lastIndex 的值
-                lastIndex = j
-              }
-              break
-            }
-          }
-          if (!find) {
-            // 如果在老的一组节点中没找到 当前节点，则说明是要新增的元素
-            // 先获取正确的挂载位置，记录一下新节点的前一个节点
-            let preVNode = newChildren[i - 1]
-            let anchor = null
-            if (preVNode) {
-              // 则取下一个兄弟节点作为 锚点
-              anchor = preVNode.el.nextSibling
-            } else {
-              // 如果没有前一个 vnode ，说明需要挂载的节点是第一个子节点，则取容器的 firstChild 作为锚点
-              anchor = container.firstChild
-            }
-            // 挂载 newVNode
-            patch(null, newVNode, container, anchor)
-          }
-        }
-        // 上一步的更新操作完成后
-        // 遍历老的节点，在新的节点中去寻找，如果发现新节点在老节点中不存在，则当前老节点，就是要移除的节点
-        for (let i = 0; i < oldChildren.length; i++) {
-          const oldVNode = oldChildren[i]
-          // 拿当前老节点去新的一组节点中寻找
-          const has = newChildren.find(vnode => vnode.key === oldVNode.key)
-          if (!has) {
-            // 如果在新的节点中没有找到和老节点相同的 key 则移除
-            unmount(oldVNode)
-          }
-        }
+        patchKeyedChildren(n1, n2, container)
       } else {
         // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可
         setElementText(container, '')
@@ -161,6 +102,52 @@ function createRenderer(options) {
         setElementText(container, '')
       }
       // 新老节点 都是 null 则什么都不需要做
+    }
+  }
+
+  /**
+   * 采用双端对比算法 找到要移动的节点
+   * @param {老 vnode} n1
+   * @param {新 vnode} n2
+   * @param {容器} container
+   */
+  function patchKeyedChildren(n1, n2, container) {
+    // 取出新老节点
+    const oldChildren = n1.children
+    const newChildren = n2.children
+
+    // 先定义好四个位置变量
+    let oldStartIdx = 0
+    let oldEndIdx = oldChildren.length - 1
+    let newStartIdx = 0
+    let newEndIdx = newChildren.length - 1
+
+    // 分别找出四个位置对应的 虚拟节点
+    let oldStartVNode = oldChildren[oldStartIdx]
+    let oldEndVNode = oldChildren[oldEndIdx]
+    let newStartVNode = newChildren[newStartIdx]
+    let newEndVNode = newChildren[newEndIdx]
+
+    // 每一次对比都有四次
+    // 1. 旧头 新头
+    // 2. 旧尾 新尾
+    // 3. 旧头 新尾  （交叉）
+    // 4. 旧尾 新头 （交叉）
+    if (oldStartVNode.key === newStartVNode.key) {
+
+    } else if (oldEndVNode.key === newEndVNode.key) {
+
+    } else if (oldStartVNode.key === newEndVNode.key) {
+
+    } else if (oldEndVNode.key === newStartVNode.key) {
+      console.log('find', oldEndVNode.key)
+      // 调用 patch 函数，进行打补丁
+      patch(oldEndVNode, newStartVNode, container)
+      // 移动节点  , 将老节点移动到新节点的前面
+      insert(oldEndVNode.el, container, oldStartVNode.el)   // 参考同位置上的老节点
+      // 移动完成之后，需要更新节点的位置
+      oldEndVNode = oldChildren[--oldEndIdx]  // 向上移动
+      newStartVNode = newChildren[++newStartIdx] // 向下移动
     }
   }
 

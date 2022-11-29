@@ -134,6 +134,17 @@ function createRenderer(options) {
             patch(null, newVNode, container, anchor)
           }
         }
+        // 上一步的更新操作完成后
+        // 遍历老的节点，在新的节点中去寻找，如果发现新节点在老节点中不存在，则当前老节点，就是要移除的节点
+        for (let i = 0; i < oldChildren.length; i++) {
+          const oldVNode = oldChildren[i]
+          // 拿当前老节点去新的一组节点中寻找
+          const has = newChildren.find(vnode => vnode.key === oldVNode.key)
+          if (!has) {
+            // 如果在新的节点中没有找到和老节点相同的 key 则移除
+            unmount(oldVNode)
+          }
+        }
       } else {
         // 旧节点 要么是 字符串 要么没有 ， 我们只需要挂载新的节点，并清除老的节点即可
         setElementText(container, '')

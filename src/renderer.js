@@ -129,25 +129,42 @@ function createRenderer(options) {
     let newEndVNode = newChildren[newEndIdx]
 
     // 每一次对比都有四次
-    // 1. 旧头 新头
-    // 2. 旧尾 新尾
-    // 3. 旧头 新尾  （交叉）
-    // 4. 旧尾 新头 （交叉）
-    if (oldStartVNode.key === newStartVNode.key) {
+    // 1. 旧头 新头  两者都是头部节点，只需要 patch 不需要移动DOM节点
+    // 2. 旧尾 新尾  两者都是尾部节点，只需要 patch 不需要移动节点
+    // 3. 旧头 新尾  （交叉） patch + 需要将 旧头节点移动到旧尾的后面
+    // 4. 旧尾 新头 （交叉）  patch + 需要将 旧尾节点移动到新头节点的前面
 
-    } else if (oldEndVNode.key === newEndVNode.key) {
-
-    } else if (oldStartVNode.key === newEndVNode.key) {
-
-    } else if (oldEndVNode.key === newStartVNode.key) {
-      console.log('find', oldEndVNode.key)
-      // 调用 patch 函数，进行打补丁
-      patch(oldEndVNode, newStartVNode, container)
-      // 移动节点  , 将老节点移动到新节点的前面
-      insert(oldEndVNode.el, container, oldStartVNode.el)   // 参考同位置上的老节点
-      // 移动完成之后，需要更新节点的位置
-      oldEndVNode = oldChildren[--oldEndIdx]  // 向上移动
-      newStartVNode = newChildren[++newStartIdx] // 向下移动
+    // 两组节点 移动不能超过尾部的下标
+    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+      if (oldStartVNode.key === newStartVNode.key) {
+        patch(oldStartVNode, newStartVNode, container)
+        // 更新索引位置
+        oldStartVNode = oldChildren[++oldStartIdx]
+        newStartVNode = newChildren[++newStartIdx]
+      } else if (oldEndVNode.key === newEndVNode.key) {
+        // 旧尾 新尾  如果相同 则只需要打补丁 不需要移动
+        patch(oldEndVNode, newEndVNode, container)
+        // 更新索引和 新旧变量 两个位置都向上移动
+        oldEndVNode = oldChildren[--oldEndIdx]
+        newEndVNode = newChildren[--newEndIdx]
+      } else if (oldStartVNode.key === newEndVNode.key) {
+        // 如果相同就打补丁
+        patch(oldStartVNode, newEndVNode, container)
+        // 此时说明原来节点在前面，现在移动到了后面
+        // 则将老的开始节点，将最前面的节点移动到最后面去
+        insert(oldStartVNode.el, container, oldEndVNode.el.nextSibling)
+        // 更新索引位置
+        oldStartVNode = oldChildren[++oldStartIdx]
+        newEndVNode = newChildren[--newEndIdx]
+      } else if (oldEndVNode.key === newStartVNode.key) {
+        // 调用 patch 函数，进行打补丁
+        patch(oldEndVNode, newStartVNode, container)
+        // 移动节点  , 将最后面的元素移动到最前面
+        insert(oldEndVNode.el, container, oldStartVNode.el)   // 参考同位置上的老节点
+        // 移动完成之后，需要更新节点的位置
+        oldEndVNode = oldChildren[--oldEndIdx]  // 向上移动
+        newStartVNode = newChildren[++newStartIdx] // 向下移动
+      }
     }
   }
 

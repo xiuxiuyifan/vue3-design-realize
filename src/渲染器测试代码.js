@@ -465,7 +465,7 @@ import { effect, ref } from './reactivity.js'
 //   renderer.render(newVnode, document.getElementById('root'))
 // }, 2000);
 
-
+// 双端 diff
 const oldVnode = {
   type: Fragment,
   children: [

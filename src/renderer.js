@@ -194,6 +194,14 @@ function createRenderer(options) {
         newStartVNode = newChildren[++newStartIdx]
       }
     }
+    // 循环结束之后 如果老节点的头部节点大于尾部节点 并且 newStartIdx <= newEndIdx ,则说明新的节点里面还有没处理完的
+    if (oldEndIdx < oldStartIdx && newStartIdx <= newEndIdx) {
+      // 则需要挂载 newStart 位置的元素
+      for (let i = newStartIdx; i <= newEndIdx; i++) {
+        // 挂载新头与 新尾之间没有处理完成的节点
+        patch(null, newChildren[i], container, oldStartVNode.el)  // 依次插入到旧头节点的前面
+      }
+    }
   }
 
   /**

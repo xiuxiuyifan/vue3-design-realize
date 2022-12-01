@@ -136,7 +136,12 @@ function createRenderer(options) {
 
     // 两组节点 移动不能超过尾部的下标
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-      if (oldStartVNode.key === newStartVNode.key) {
+      // 增加两个分支 如果老节点的 头节点 或者 尾结点 === undefined 的话，则说明已经处理过了，则直接跳过
+      if (!oldStartVNode) {
+        oldStartVNode = oldChildren[++oldStartIdx]  // 向后移动
+      } else if (!oldEndVNode) {
+        oldEndVNode = oldChildren[--oldEndIdx] // 向前移动
+      } else if (oldStartVNode.key === newStartVNode.key) {
         patch(oldStartVNode, newStartVNode, container)
         // 更新索引位置
         oldStartVNode = oldChildren[++oldStartIdx]
@@ -164,6 +169,24 @@ function createRenderer(options) {
         // 移动完成之后，需要更新节点的位置
         oldEndVNode = oldChildren[--oldEndIdx]  // 向上移动
         newStartVNode = newChildren[++newStartIdx] // 向下移动
+      } else {
+        // 四种方式都没有找到 可复用的节点， 则尝试用 newStartVNode 去老的一组 VNode 中去寻找可复用的节点
+        // 如果找到了，则将其进行移动，移动完成之后，并将其设置为 undefined 代表已经处理过了
+        // 之后继续开始四种方式遍历
+        let idxInOld = oldChildren.findIndex(node => node.key === newStartVNode.key)
+        // 如果用心头节点到老的一组中找到了
+        if (idxInOld > 0) {
+          // 取出对应位置上要移动的老节点
+          const vnodeToMove = oldChildren[idxInOld]
+          // 对当前相同的 元素进行 patch()
+          patch(vnodeToMove, newStartVNode, container)
+          // 在头部没有找到可以复用的 vnode ，在其他位置找到了，则说明老节点需要移动到当前老元素的最前面
+          insert(vnodeToMove.el, container, oldStartVNode.el)  // 参考节点是老节点的最前面的位置
+          // 标记已处理
+          oldChildren[idxInOld] = undefined
+          // 继续移动 新开始 vnode 的索引
+          newStartVNode = newChildren[++newStartIdx]
+        }
       }
     }
   }

@@ -202,6 +202,13 @@ function createRenderer(options) {
         patch(null, newChildren[i], container, oldStartVNode.el)  // 依次插入到旧头节点的前面
       }
     }
+    // 循环结束之后 新的节点越界了，老的节点没有越界 表明新元素少，老的多 则需要删除
+    else if (newEndIdx < newStartIdx && oldStartIdx <= oldEndIdx) {
+      // 移除操作
+      for (let i = oldStartIdx; i <= oldEndIdx; i++) {  // 重合的时候也算
+        unmount(oldChildren[i])
+      }
+    }
   }
 
   /**

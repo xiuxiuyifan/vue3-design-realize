@@ -637,7 +637,61 @@ import { effect, ref } from './reactivity.js'
 // }, 2000);
 
 
-// 双端 diff  添加头部未处理的一系列新元素
+// // 双端 diff  添加头部未处理的一系列新元素
+// const oldVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: '1',
+//       key: '1'
+//     },
+//     {
+//       type: 'p',
+//       children: '2',
+//       key: '2'
+//     },
+//     {
+//       type: 'p',
+//       children: '3',
+//       key: '3'
+//     }
+//   ]
+// }
+
+// const newVnode = {
+//   type: Fragment,
+//   children: [
+//     {
+//       type: 'p',
+//       children: '4',
+//       key: '4'
+//     },
+//     {
+//       type: 'p',
+//       children: '1',
+//       key: '1'
+//     },
+//     {
+//       type: 'p',
+//       children: '2',
+//       key: '2'
+//     },
+//     {
+//       type: 'p',
+//       children: '3',
+//       key: '3'
+//     }
+//   ]
+// }
+// renderer.render(oldVnode, document.getElementById('root'))
+
+// setTimeout(() => {
+//   renderer.render(newVnode, document.getElementById('root'))
+// }, 2000);
+
+
+// 双端 diff  移除一系列元素
 const oldVnode = {
   type: Fragment,
   children: [
@@ -664,18 +718,8 @@ const newVnode = {
   children: [
     {
       type: 'p',
-      children: '4',
-      key: '4'
-    },
-    {
-      type: 'p',
       children: '1',
       key: '1'
-    },
-    {
-      type: 'p',
-      children: '2',
-      key: '2'
     },
     {
       type: 'p',

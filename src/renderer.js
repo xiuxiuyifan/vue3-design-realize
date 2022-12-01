@@ -185,8 +185,13 @@ function createRenderer(options) {
           // 标记已处理
           oldChildren[idxInOld] = undefined
           // 继续移动 新开始 vnode 的索引
-          newStartVNode = newChildren[++newStartIdx]
+        } else {
+          // 如果拿新的头部节点去老的children 中找不见则说明是添加新的 节点
+          // 将新的头部节点当做新的节点插入到老节点的头部
+          patch(null, newStartVNode, container, oldStartVNode.el) // 将老的头部节点当做参考位置
+          // 继续移动新的头部节点
         }
+        newStartVNode = newChildren[++newStartIdx]
       }
     }
   }

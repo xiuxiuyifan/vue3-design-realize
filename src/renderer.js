@@ -158,6 +158,11 @@ function createRenderer(options) {
       while (j <= newEnd) {
         patch(null, newChildren[j++], container, anchor)
       }
+    } else if (j > newEnd && j <= oldEnd) {
+      // j 到 oldEnd 直接的元素都婴孩被卸载
+      while (j <= oldEnd) {
+        unmount(oldChildren[j++])
+      }
     }
   }
 

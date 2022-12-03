@@ -112,101 +112,51 @@ function createRenderer(options) {
    * @param {容器} container
    */
   function patchKeyedChildren(n1, n2, container) {
-    // 取出新老节点
+    console.log('hih')
     const oldChildren = n1.children
     const newChildren = n2.children
-
-    // 先定义好四个位置变量
-    let oldStartIdx = 0
-    let oldEndIdx = oldChildren.length - 1
-    let newStartIdx = 0
-    let newEndIdx = newChildren.length - 1
-
-    // 分别找出四个位置对应的 虚拟节点
-    let oldStartVNode = oldChildren[oldStartIdx]
-    let oldEndVNode = oldChildren[oldEndIdx]
-    let newStartVNode = newChildren[newStartIdx]
-    let newEndVNode = newChildren[newEndIdx]
-
-    // 每一次对比都有四次
-    // 1. 旧头 新头  两者都是头部节点，只需要 patch 不需要移动DOM节点
-    // 2. 旧尾 新尾  两者都是尾部节点，只需要 patch 不需要移动节点
-    // 3. 旧头 新尾  （交叉） patch + 需要将 旧头节点移动到旧尾的后面
-    // 4. 旧尾 新头 （交叉）  patch + 需要将 旧尾节点移动到新头节点的前面
-
-    // 两组节点 移动不能超过尾部的下标
-    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-      // 增加两个分支 如果老节点的 头节点 或者 尾结点 === undefined 的话，则说明已经处理过了，则直接跳过
-      if (!oldStartVNode) {
-        oldStartVNode = oldChildren[++oldStartIdx]  // 向后移动
-      } else if (!oldEndVNode) {
-        oldEndVNode = oldChildren[--oldEndIdx] // 向前移动
-      } else if (oldStartVNode.key === newStartVNode.key) {
-        patch(oldStartVNode, newStartVNode, container)
-        // 更新索引位置
-        oldStartVNode = oldChildren[++oldStartIdx]
-        newStartVNode = newChildren[++newStartIdx]
-      } else if (oldEndVNode.key === newEndVNode.key) {
-        // 旧尾 新尾  如果相同 则只需要打补丁 不需要移动
-        patch(oldEndVNode, newEndVNode, container)
-        // 更新索引和 新旧变量 两个位置都向上移动
-        oldEndVNode = oldChildren[--oldEndIdx]
-        newEndVNode = newChildren[--newEndIdx]
-      } else if (oldStartVNode.key === newEndVNode.key) {
-        // 如果相同就打补丁
-        patch(oldStartVNode, newEndVNode, container)
-        // 此时说明原来节点在前面，现在移动到了后面
-        // 则将老的开始节点，将最前面的节点移动到最后面去
-        insert(oldStartVNode.el, container, oldEndVNode.el.nextSibling)
-        // 更新索引位置
-        oldStartVNode = oldChildren[++oldStartIdx]
-        newEndVNode = newChildren[--newEndIdx]
-      } else if (oldEndVNode.key === newStartVNode.key) {
-        // 调用 patch 函数，进行打补丁
-        patch(oldEndVNode, newStartVNode, container)
-        // 移动节点  , 将最后面的元素移动到最前面
-        insert(oldEndVNode.el, container, oldStartVNode.el)   // 参考同位置上的老节点
-        // 移动完成之后，需要更新节点的位置
-        oldEndVNode = oldChildren[--oldEndIdx]  // 向上移动
-        newStartVNode = newChildren[++newStartIdx] // 向下移动
-      } else {
-        // 四种方式都没有找到 可复用的节点， 则尝试用 newStartVNode 去老的一组 VNode 中去寻找可复用的节点
-        // 如果找到了，则将其进行移动，移动完成之后，并将其设置为 undefined 代表已经处理过了
-        // 之后继续开始四种方式遍历
-        let idxInOld = oldChildren.findIndex(node => node.key === newStartVNode.key)
-        // 如果用心头节点到老的一组中找到了
-        if (idxInOld > 0) {
-          // 取出对应位置上要移动的老节点
-          const vnodeToMove = oldChildren[idxInOld]
-          // 对当前相同的 元素进行 patch()
-          patch(vnodeToMove, newStartVNode, container)
-          // 在头部没有找到可以复用的 vnode ，在其他位置找到了，则说明老节点需要移动到当前老元素的最前面
-          insert(vnodeToMove.el, container, oldStartVNode.el)  // 参考节点是老节点的最前面的位置
-          // 标记已处理
-          oldChildren[idxInOld] = undefined
-          // 继续移动 新开始 vnode 的索引
-        } else {
-          // 如果拿新的头部节点去老的children 中找不见则说明是添加新的 节点
-          // 将新的头部节点当做新的节点插入到老节点的头部
-          patch(null, newStartVNode, container, oldStartVNode.el) // 将老的头部节点当做参考位置
-          // 继续移动新的头部节点
-        }
-        newStartVNode = newChildren[++newStartIdx]
-      }
+    // 处理相同的前置节点
+    let j = 0   // 索引指向新旧节点的开头节点
+    let oldVNode = oldChildren[j]
+    let newVNode = newChildren[j]
+    // 然后从开头开始判断
+    while (oldVNode.key === newVNode.key) {
+      // 进行打补丁
+      patch(oldVNode, newVNode, container)
+      // 如果相等，则移动 j
+      j++
+      oldVNode = oldChildren[j]
+      newVNode = newChildren[j]
     }
-    // 循环结束之后 如果老节点的头部节点大于尾部节点 并且 newStartIdx <= newEndIdx ,则说明新的节点里面还有没处理完的
-    if (oldEndIdx < oldStartIdx && newStartIdx <= newEndIdx) {
-      // 则需要挂载 newStart 位置的元素
-      for (let i = newStartIdx; i <= newEndIdx; i++) {
-        // 挂载新头与 新尾之间没有处理完成的节点
-        patch(null, newChildren[i], container, oldStartVNode.el)  // 依次插入到旧头节点的前面
-      }
+
+    // 从后开始网上找  相同的节点
+    // 因为新老 虚拟节点的长度有可能不同，所以要用两个索引来实现
+    let oldEnd = oldChildren.length - 1
+    let newEnd = newChildren.length - 1
+
+    // 取出 尾部节点
+    oldVNode = oldChildren[oldEnd]
+    newVNode = newChildren[newEnd]
+    // 从后开始对比，
+    while (oldVNode.key === newVNode.key) {
+      // 打补丁
+      patch(oldVNode, newVNode, container)
+      // 如果尾部节点相同，则往上移动索引
+      oldEnd--
+      newEnd--
+      oldVNode = oldChildren[oldEnd]
+      newVNode = newChildren[newEnd]
     }
-    // 循环结束之后 新的节点越界了，老的节点没有越界 表明新元素少，老的多 则需要删除
-    else if (newEndIdx < newStartIdx && oldStartIdx <= oldEndIdx) {
-      // 移除操作
-      for (let i = oldStartIdx; i <= oldEndIdx; i++) {  // 重合的时候也算
-        unmount(oldChildren[i])
+    // 当头部相同的节点 和尾部相同的节点处理完毕之后
+    //  老节点已经处理完成了，新节点还没有处理完成
+    if (j > oldEnd && j <= newEnd) {
+      // 此时应该把新节点没有处理完成的都 进行插入
+      // 计算锚点的索引
+      let anchorIndex = newEnd + 1   // 用最后一个匹配到的新元素 作为参考节点，
+      // 如果 当前索引小于 新 children 的长度，则说明 参考节点在新的元素中，否则说明参考节点已经是最后一个元素了，直接追加即可
+      let anchor = anchorIndex < newChildren.length ? newChildren[anchorIndex].el : null
+      while (j <= newEnd) {
+        patch(null, newChildren[j++], container, anchor)
       }
     }
   }

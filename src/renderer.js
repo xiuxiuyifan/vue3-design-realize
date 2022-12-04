@@ -112,7 +112,6 @@ function createRenderer(options) {
    * @param {容器} container
    */
   function patchKeyedChildren(n1, n2, container) {
-    console.log('hih')
     const oldChildren = n1.children
     const newChildren = n2.children
     // 处理相同的前置节点
@@ -163,6 +162,34 @@ function createRenderer(options) {
       while (j <= oldEnd) {
         unmount(oldChildren[j++])
       }
+    } else {
+      // 当头部节点和尾部节点都对比完成之后，新老节点都还有剩余的时候
+      // 先定义一个 source 数组
+      let count = newEnd - j + 1
+      // 这个数组用来存储新新子节点在旧子节点中的位置位置索引，后续用它计算出一个递增子序列，并用于辅助完成 DOM 移动的操作
+      let source = new Array(count)
+      source.fill(-1)
+
+      // oldStart 和 endStart 的值都从 j 开始
+      let oldStart = j
+      let newStart = j
+
+      // 循环老节点，记录新节点在老节点中的位置
+      for (let i = oldStart; i <= oldEnd; i++) {
+        const oldVNode = oldChildren[i]
+        // 遍历新节点，在新节点中查找
+        for (let k = newStart; k <= newEnd; k++) {
+          const newVNode = newChildren[k]
+          // 如果发现有相同的
+          if (oldVNode.key === newVNode.key) {
+            // 先进行打补丁
+            patch(oldVNode, newVNode, container)
+            // 填充数组
+            source[k - newStart] = i  // 保存在老节点中的索引
+          }
+        }
+      }
+      console.log(source)
     }
   }
 

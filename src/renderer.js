@@ -174,19 +174,25 @@ function createRenderer(options) {
       let oldStart = j
       let newStart = j
 
+      // 构建新节点的索引表
+      const keyIndex = {}
+      for (let i = newStart; i <= newEnd; i++) {
+        keyIndex[newChildren[i].key] = i   // 记录新节点  key 和索引位置
+      }
       // 循环老节点，记录新节点在老节点中的位置
       for (let i = oldStart; i <= oldEnd; i++) {
-        const oldVNode = oldChildren[i]
-        // 遍历新节点，在新节点中查找
-        for (let k = newStart; k <= newEnd; k++) {
-          const newVNode = newChildren[k]
-          // 如果发现有相同的
-          if (oldVNode.key === newVNode.key) {
-            // 先进行打补丁
-            patch(oldVNode, newVNode, container)
-            // 填充数组
-            source[k - newStart] = i  // 保存在老节点中的索引
-          }
+        oldVNode = oldChildren[i]
+        // 通过索引找到新节点中具有相同 key 元素的位置
+        const k = keyIndex[oldVNode.key]
+        if (typeof k !== 'undefined') {
+          // 找出新节点
+          newVNode = newChildren[k]
+          patch(oldVNode, newVNode, container)
+          // 填充 source 数组
+          source[k - newStart] = i
+        } else {
+          // 如果在新子节点中没有找到，则说明是需要 卸载的元素
+          unmount(oldVNode)
         }
       }
       console.log(source)

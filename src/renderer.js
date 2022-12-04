@@ -173,25 +173,46 @@ function createRenderer(options) {
       // oldStart 和 endStart 的值都从 j 开始
       let oldStart = j
       let newStart = j
+      // 新增两个变量
+      let moved = false  // 代表是否需要移动节点
+      let pos = 0     // 代表遍历一组节点中遇到的最大索引
 
       // 构建新节点的索引表
       const keyIndex = {}
       for (let i = newStart; i <= newEnd; i++) {
         keyIndex[newChildren[i].key] = i   // 记录新节点  key 和索引位置
       }
+      // 新增 patched 代表新增过的节点数量
+      let patched = 0
       // 循环老节点，记录新节点在老节点中的位置
       for (let i = oldStart; i <= oldEnd; i++) {
         oldVNode = oldChildren[i]
-        // 通过索引找到新节点中具有相同 key 元素的位置
-        const k = keyIndex[oldVNode.key]
-        if (typeof k !== 'undefined') {
-          // 找出新节点
-          newVNode = newChildren[k]
-          patch(oldVNode, newVNode, container)
-          // 填充 source 数组
-          source[k - newStart] = i
+        // 如果如果更新过的节点数量小于等于需要更新的节点数量，则执行更新
+        if (patched <= count) {
+          // 通过老节点的 key 找到新节点中具有相同 key 元素的位置
+          const k = keyIndex[oldVNode.key]
+          if (typeof k !== 'undefined') {
+            // 找出新节点
+            newVNode = newChildren[k]
+            patch(oldVNode, newVNode, container)
+            // 每更新一个节点，都将 patched + 1
+            patched++
+            // 填充 source 数组
+            source[k - newStart] = i
+            // 判断节点是否移动
+            if (k < pos) {
+              // 新的节点如果一旦不是升序，则说明要移动节点
+              // 老节点中是按 顺序遍历的
+              moved = true
+            } else {
+              pos = k
+            }
+          } else {
+            // 如果在新子节点中没有找到，则说明是需要 卸载的元素
+            unmount(oldVNode)
+          }
         } else {
-          // 如果在新子节点中没有找到，则说明是需要 卸载的元素
+          // 如果更新过的节点数量大于要更新节点的数量，则说明老节点有多余的需要卸载
           unmount(oldVNode)
         }
       }

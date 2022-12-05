@@ -1,4 +1,4 @@
-import { reactive } from './reactivity'
+import { effect, reactive } from './reactivity'
 
 // 文本节点类型
 export const Text = Symbol()
@@ -50,6 +50,31 @@ function getSequence(arr) {
   return result
 }
 
+// 缓存 effect 函数中的 副作用函数
+const queue = new Set()
+// 定义一个标识，标识当前是否正在刷新任务队列
+let isFlushing = false
+// 创建一个立即 resolve 的 Promise 实例
+const p = Promise.resolve()
+// 调度器的主函数，将一个任务添加到缓冲队列中，并开始刷新
+function queueJob(job) {
+  // 将任务添加到队列中
+  queue.add(job)
+  // 如果任务还没有开始刷线，则开始刷新
+  if (!isFlushing) {   // 只有第一次会进来，后面同步的代码就进不来了
+    // 将该值标记为 true， 以避免重复刷新
+    isFlushing = true
+    // 在任务队列中刷新缓冲队列
+    p.then(() => {
+      try {
+        queue.forEach(job => job())
+      } finally {
+        isFlushing = false
+        queue.clear()
+      }
+    })
+  }
+}
 function createRenderer(options) {
 
   const {
@@ -325,11 +350,16 @@ function createRenderer(options) {
     const { render, data } = componentOptions
     // 执行 data 函数，拿到返回的对象，调用 reactive 函数将对象进行响应式代理
     const state = reactive(data())
+    window.xxx = state
     // 执行 render 函数 拿到子组件的虚拟节点树
     // 使用 call 将 函数内部 this 绑定为 state
-    const subTree = render.call(state, state)
-    // 最后调用 patch 函数来挂载 子树  既 subTree
-    patch(null, subTree, container, anchor)
+    effect(() => {
+      const subTree = render.call(state, state)
+      // 最后调用 patch 函数来挂载 子树  既 subTree
+      patch(null, subTree, container, anchor)
+    }, {
+      scheduler: queueJob
+    })
   }
 
   function patch(n1, n2, container, anchor) {

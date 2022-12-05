@@ -1,3 +1,5 @@
+import { reactive } from './reactivity'
+
 // 文本节点类型
 export const Text = Symbol()
 // 注释接单类型
@@ -320,9 +322,12 @@ function createRenderer(options) {
     // 通过 vnode 获取组建的选项对象
     const componentOptions = vnode.type
     // 拿到 render 函数
-    const { render } = componentOptions
+    const { render, data } = componentOptions
+    // 执行 data 函数，拿到返回的对象，调用 reactive 函数将对象进行响应式代理
+    const state = reactive(data())
     // 执行 render 函数 拿到子组件的虚拟节点树
-    const subTree = render()
+    // 使用 call 将 函数内部 this 绑定为 state
+    const subTree = render.call(state, state)
     // 最后调用 patch 函数来挂载 子树  既 subTree
     patch(null, subTree, container, anchor)
   }

@@ -316,6 +316,16 @@ function createRenderer(options) {
   }
 
 
+  function mountComponent(vnode, container, anchor) {
+    // 通过 vnode 获取组建的选项对象
+    const componentOptions = vnode.type
+    // 拿到 render 函数
+    const { render } = componentOptions
+    // 执行 render 函数 拿到子组件的虚拟节点树
+    const subTree = render()
+    // 最后调用 patch 函数来挂载 子树  既 subTree
+    patch(null, subTree, container, anchor)
+  }
 
   function patch(n1, n2, container, anchor) {
     // 如果新老节点的 类型不一样，则移除老节点
@@ -359,6 +369,13 @@ function createRenderer(options) {
       }
     } else if (typeof type === 'object') {
       // 如果 vnode 的类型是 对象则说明要渲染 组件
+      if (!n1) {
+        // 没有老节点，则说明是挂载
+        mountComponent(n2, container, anchor)
+      } else {
+        // 否则，说明是组件更新
+        patchComponent()
+      }
     }
   }
 

@@ -6,6 +6,48 @@ export const Comment = Symbol()
 // Fragment 类型
 export const Fragment = Symbol()
 
+// 获取一个数组中最长的递增子序列
+function getSequence(arr) {
+  const p = arr.slice()
+  const result = [0]
+  let i, j, u, v, c
+  const len = arr.length
+  for (i = 0; i < len; i++) {
+    const arrI = arr[i]
+    if (arrI !== 0) {
+      j = result[result.length - 1]
+      if (arr[j] < arrI) {
+        p[i] = j
+        result.push(i)
+        continue
+      }
+      u = 0
+      v = result.length - 1
+      while (u < v) {
+        c = ((u + v) / 2) | 0
+        if (arr[result[c]] < arrI) {
+          u = c + 1
+        } else {
+          v = c
+        }
+      }
+      if (arrI < arr[result[u]]) {
+        if (u > 0) {
+          p[i] = result[u - 1]
+        }
+        result[u] = i
+      }
+    }
+  }
+  u = result.length
+  v = result[u - 1]
+  while (u-- > 0) {
+    result[u] = v
+    v = p[v]
+  }
+  return result
+}
+
 function createRenderer(options) {
 
   const {
@@ -216,7 +258,41 @@ function createRenderer(options) {
           unmount(oldVNode)
         }
       }
-      console.log(source)
+      if (moved) {
+        // 如果有要移动的节点
+        const seq = getSequence(source)
+        let s = seq.length - 1  // 指向最长新增子序列的最后一个节点
+        let i = count - 1 // 指向新一组节点的最后一个元素
+        for (i; i >= 0; i--) {  // 从后往前开始遍历
+          if (source[i] === -1) {
+            // 表示全新的节点，需要进行挂载
+            // 找到该节点在真实 vnode 中的位置
+            let pos = i + newStart
+            let newVNode = newChildren[pos]
+
+            // 该节点的下一个位置
+            let nextPos = pos + 1
+            // 找到 锚点
+            let anchor = nextPos < newChildren.length ? newChildren[nextPos].el : null
+            // 挂载
+            patch(null, newVNode, container, anchor)
+          }
+          else if (i !== seq[s]) {
+            // 不在最长子序列的数组中，则说明需要移动
+            let pos = i + newStart
+            let newVNode = newChildren[pos]
+
+            // 该节点的下一个位置
+            let nextPos = pos + 1
+            // 找到 锚点
+            let anchor = nextPos < newChildren.length ? newChildren[nextPos].el : null
+            // 移动
+            insert(newVNode.el, container, anchor)
+          } else { // 此时不需要移动，只需要 s 指向下一个位置
+            s--
+          }
+        }
+      }
     }
   }
 

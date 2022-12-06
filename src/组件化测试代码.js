@@ -42,7 +42,3 @@ const CompVNode = {
 
 renderer.render(CompVNode, document.getElementById('root'))
 
-setTimeout(() => {
-  xxx.foo = 100
-  xxx.foo = 200
-}, 1000);

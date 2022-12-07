@@ -365,6 +365,8 @@ function createRenderer(options) {
     const state = reactive(data())
     // 调用 resolveProps 函数解析出 props 和 attrs 的数据
     const [props, attrs] = resolveProps(propsOptions, vnode.props)
+    // 直接使用 编译好的 vnode.children 作为 slots 对象
+    const slots = vnode.children || {}
     // 定义一个组件实例，它本身就是一个对象，包含与组件有关的状态信息
     const instance = {
       // 组件数据
@@ -374,7 +376,8 @@ function createRenderer(options) {
       // 表示组件是否已经挂载，初始值是 false
       isMounted: false,
       // 组件渲染的内容，既子树
-      subTree: null
+      subTree: null,
+      slots
     }
     // 定义 emit 函数
     function emit(event, ...payload) {
@@ -392,7 +395,8 @@ function createRenderer(options) {
     // 定义一个 setupContext 对象
     const setupContext = {
       attrs,
-      emit
+      emit,
+      slots
     }
     // 调用 setup 函数, 并获取结果
     const setupResult = setup(shallowReactive(props), setupContext)
@@ -413,7 +417,9 @@ function createRenderer(options) {
     const renderContext = new Proxy(instance, {
       get(t, k, r) {
         // 从 instance 上面取得  props data
-        const { props, state } = t
+        const { props, state, slots } = t
+        // 当访问的 key === $slots 的时候直接返回
+        if (k === '$slots') return slots
         // 先在 自身的 state 上面查找
         if (state && k in state) {
           return state[k]

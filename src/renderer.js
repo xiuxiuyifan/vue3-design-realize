@@ -347,7 +347,18 @@ function createRenderer(options) {
     // 通过 vnode 获取组建的选项对象
     const componentOptions = vnode.type
     // 从组件对象的属性上 拿到 render 函数
-    const { render, data, beforeCreate, created, beforeMount, mounted, beforeUpdate, updated, props: propsOptions } = componentOptions
+    const {
+      render,
+      data,
+      beforeCreate,
+      created,
+      beforeMount,
+      mounted,
+      beforeUpdate,
+      updated,
+      props: propsOptions,
+      setup,
+    } = componentOptions
     // 在数据初始化之前 调用 beforeCreate
     beforeCreate && beforeCreate()
     // 执行 data 函数，拿到返回的对象，调用 reactive 函数将对象进行响应式代理
@@ -365,6 +376,23 @@ function createRenderer(options) {
       // 组件渲染的内容，既子树
       subTree: null
     }
+    // 定义一个 setupContext 对象
+    const setupContext = {
+      attrs
+    }
+    // 调用 setup 函数, 并获取结果
+    const setupResult = setup(shallowReactive(props), setupContext)
+    // 保存 setup 返回的数据
+    let setupState = null
+    // 判断 setup 函数返回值的类型
+    if (typeof setupResult === 'function') {
+      // 如果 setup 的返回值是一个函数
+      if (render) console.error('setup 函数返回 渲染函数, render 选项将被忽略')
+      render = setupResult
+    } else {
+      // 如果不是函数，
+      setupState = setupResult  // 说明返回的就是状态
+    }
     // 这点也比较重要，将组件实例设置到 vnode 上面用于后序更新
     vnode.component = instance
     // 创建渲染上下文， 本质上是组件实例的代理
@@ -378,7 +406,11 @@ function createRenderer(options) {
         } else if (k in props) {
           // 再从 props 上面读取
           return props[k]
-        } else {
+        } else if (setupState && k in setupState) {
+          // 渲染上下文需要支持 setupState
+          return setupState[k]
+        }
+        else {
           console.log('不存在')
         }
       },
@@ -390,6 +422,9 @@ function createRenderer(options) {
           state[k] = v
         } else if (k in props) {  // 修改 props
           console.log(`props ${k} 不能修改`)
+        } else if (setupState && k in setupState) {
+          // 相当于组件内部通过 this 来修改 state 的值
+          setupState[k] = v
         } else {
           console.log('不存在')
         }

@@ -1,3 +1,4 @@
+import { ref } from "./reactivity"
 import { renderer } from "./renderer"
 
 // const MyComponent = {
@@ -62,10 +63,44 @@ import { renderer } from "./renderer"
 
 
 
+// const MyComponent = {
+//   name: 'MyComponent',
+//   props: {
+//     title: String
+//   },
+//   data() {
+//     return {}
+//   },
+//   render() {
+//     return {
+//       type: 'div',
+//       children: `count is : ${this.title}`  //  在 render 函数内部使用 组价状态
+//     }
+//   }
+// }
+
+// // 用来描述组件的 vnode 对象， type 属性值为组件的选项对象
+// const vnode = {
+//   type: MyComponent,
+//   props: {
+//     title: 'A big title',
+//     other: 'other val'
+//   }
+// }
+
+// renderer.render(vnode, document.getElementById('root'))
+
+// setup 函数的实现
 const MyComponent = {
   name: 'MyComponent',
   props: {
     title: String
+  },
+  setup() {
+    const msg = ref('msg内容')
+    return {
+      msg
+    }
   },
   data() {
     return {}
@@ -73,7 +108,7 @@ const MyComponent = {
   render() {
     return {
       type: 'div',
-      children: `count is : ${this.title}`  //  在 render 函数内部使用 组价状态
+      children: `props: ${this.title} setupState: ${this.msg.value}`  //  在 render 函数内部使用 组价状态
     }
   }
 }

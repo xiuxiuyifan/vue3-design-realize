@@ -1,4 +1,4 @@
-import { effect, reactive } from './reactivity'
+import { effect, reactive, shallowReactive } from './reactivity'
 
 // 文本节点类型
 export const Text = Symbol()
@@ -346,17 +346,21 @@ function createRenderer(options) {
   function mountComponent(vnode, container, anchor) {
     // 通过 vnode 获取组建的选项对象
     const componentOptions = vnode.type
-    // 拿到 render 函数
-    const { render, data, beforeCreate, created, beforeMount, mounted, beforeUpdate, updated } = componentOptions
+    // 从组件对象的属性上 拿到 render 函数
+    const { render, data, beforeCreate, created, beforeMount, mounted, beforeUpdate, updated, props: propsOptions } = componentOptions
     // 在数据初始化之前 调用 beforeCreate
     beforeCreate && beforeCreate()
     // 执行 data 函数，拿到返回的对象，调用 reactive 函数将对象进行响应式代理
     const state = reactive(data())
+    // 调用 resolveProps 函数解析出 props 和 attrs 的数据
+    const [props, attrs] = resolveProps(propsOptions, vnode.props)
     window.xxx = state
     // 定义一个组件实例，它本身就是一个对象，包含与组件有关的状态信息
     const instance = {
       // 组件数据
       state,
+      // 将解析出来的 props 数据包装为 shallowReactive 并定义到组件实例上
+      props: shallowReactive(props),
       // 表示组件是否已经挂载，初始值是 false
       isMounted: false,
       // 组件渲染的内容，既子树
@@ -398,6 +402,74 @@ function createRenderer(options) {
     })
   }
 
+  function patchComponent(n1, n2, container) {
+    // 获取组件实例 , 同时让新 组件的虚拟节点 的 component 属性指向 老的组件实例
+    const instance = (n2.component = n1.component)
+    // 获取当前组件的 props
+    const { props } = instance
+    // 检测传递给子组件的 props 是否发生了变化，如果没有发生变化，则不需要更新
+    if (hasPropsChanged(n1.props, n2.props)) {
+      // 获取新的 props
+      const [nextProps] = resolveProps(n2.type.props, n2.props)
+      // 更新 props
+      for (const key in nextProps) {
+        // 重新赋值
+        props[key] = nextProps[key]
+      }
+      // 删除不存在的 props // 遍历老的 props
+      for (const key in props) {
+        // 在新的里面没有
+        if (!key in nextProps) {
+          delete props[key]
+        }
+      }
+    }
+  }
+
+  function hasPropsChanged(prevProps, nextProps) {
+    // 如果两者的 长度不一样则不相同  说明有变化
+    const nextKeys = Object.keys(nextProps)
+    if (nextKeys.length !== Object.keys(prevProps).length) {
+      return true
+    }
+    // 遍历新的 props
+    for (let i = 0; i < nextKeys.length; i++) {
+      const key = nextKeys[i]
+      // 如果老的 props 和新的 props 的值不相同，则说明 新老的 props 值有变化
+      if (nextProps[key] !== prevProps[key]) return true
+    }
+    return false
+  }
+
+
+  /**
+   *
+   * @param {*} 组件内部用户声明的 props
+   * @param {*} 传递下来的 props  vnode.props
+   */
+  function resolveProps(options, propsData) {
+    const props = {}
+    const attrs = {}
+    // 遍历用户组件中定义的 props
+    for (let key in propsData) {
+      // 如果在用户定义的 props 里面，则将其收集到 props 里面 去
+      if (key in options) {
+        props[key] = propsData[key]
+      } else {
+        // 否则将其收集到 attrs 里面其
+        attrs[key] = propsData[key]
+      }
+    }
+    return [props, attrs]
+  }
+
+  /**
+   *
+   * @param {*} n1 老 vnode
+   * @param {*} n2 新 vnode
+   * @param {*} container  容器
+   * @param {*} anchor  参考节点
+   */
   function patch(n1, n2, container, anchor) {
     // 如果新老节点的 类型不一样，则移除老节点
     if (n1 && n1.type !== n2.type) {

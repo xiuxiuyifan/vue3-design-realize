@@ -354,7 +354,6 @@ function createRenderer(options) {
     const state = reactive(data())
     // 调用 resolveProps 函数解析出 props 和 attrs 的数据
     const [props, attrs] = resolveProps(propsOptions, vnode.props)
-    window.xxx = state
     // 定义一个组件实例，它本身就是一个对象，包含与组件有关的状态信息
     const instance = {
       // 组件数据
@@ -368,32 +367,60 @@ function createRenderer(options) {
     }
     // 这点也比较重要，将组件实例设置到 vnode 上面用于后序更新
     vnode.component = instance
+    // 创建渲染上下文， 本质上是组件实例的代理
+    const renderContext = new Proxy(instance, {
+      get(t, k, r) {
+        // 从 instance 上面取得  props data
+        const { props, state } = t
+        // 先在 自身的 state 上面查找
+        if (state && k in state) {
+          return state[k]
+        } else if (k in props) {
+          // 再从 props 上面读取
+          return props[k]
+        } else {
+          console.log('不存在')
+        }
+      },
+      set(t, k, v, r) {
+        // 这里是，假设用户通过 this 来修改 instance 上的属性会走到这里
+        const { props, state } = t
+        // 先在 自身的 state 上面查找
+        if (state && k in state) {
+          state[k] = v
+        } else if (k in props) {  // 修改 props
+          console.log(`props ${k} 不能修改`)
+        } else {
+          console.log('不存在')
+        }
+      }
+    })
     // 在这里调用 created
-    created && created.call(state)
+    created && created.call(renderContext)
     // 执行 render 函数 拿到子组件的虚拟节点树
     // 使用 call 将 函数内部 this 绑定为 state
     effect(() => {
       // 调用组件的 渲染函数 获得子树
-      const subTree = render.call(state, state)
+      const subTree = render.call(renderContext, state)
       // 其实这里利用了闭包， 拿到外部的 instance 实例
       // 判断组件实例是否已经挂载完成了
       if (!instance.isMounted) {
         // 执行挂载逻辑
         // patch 之前调用
-        beforeMount && beforeMount()
+        beforeMount && beforeMount.call(renderContext)
         // 最后调用 patch 函数来挂载 子树  既 subTree
         patch(null, subTree, container, anchor)
         // 当挂载完成之后，将组件是否挂载的变量设置成 true
         instance.isMounted = true
         // patch 之后调用 mounted
-        mounted && mounted()
+        mounted && mounted.call(renderContext)
       } else {
         // 打补丁之前
-        beforeUpdate && beforeUpdate()
+        beforeUpdate && beforeUpdate.call(renderContext)
         // 当 isMounted = true 的时候，执行更新操作，使用最新的 子树 和 上一次的子树 进行打补丁
         patch(instance.subTree, subTree, container, anchor)
         // 在 patch 之后调用 updated
-        updated && updated()
+        updated && updated.call(renderContext)
       }
       // 记录上一次的 子树内容
       instance.subTree = subTree

@@ -90,16 +90,55 @@ import { renderer } from "./renderer"
 
 // renderer.render(vnode, document.getElementById('root'))
 
-// setup 函数的实现
+// // setup 函数的实现
+// const MyComponent = {
+//   name: 'MyComponent',
+//   props: {
+//     title: String
+//   },
+//   setup() {
+//     const msg = ref('msg内容')
+//     return {
+//       msg
+//     }
+//   },
+//   data() {
+//     return {}
+//   },
+//   render() {
+//     return {
+//       type: 'div',
+//       children: `props: ${this.title} setupState: ${this.msg.value}`  //  在 render 函数内部使用 组价状态
+//     }
+//   }
+// }
+
+// // 用来描述组件的 vnode 对象， type 属性值为组件的选项对象
+// const vnode = {
+//   type: MyComponent,
+//   props: {
+//     title: 'A big title',
+//     other: 'other val'
+//   }
+// }
+
+// renderer.render(vnode, document.getElementById('root'))
+
+
+// 实现 emit
 const MyComponent = {
   name: 'MyComponent',
   props: {
     title: String
   },
-  setup() {
+  setup(props, { emit }) {
     const msg = ref('msg内容')
+    const handleClick = () => {
+      emit('click')
+    }
     return {
-      msg
+      msg,
+      handleClick
     }
   },
   data() {
@@ -108,6 +147,9 @@ const MyComponent = {
   render() {
     return {
       type: 'div',
+      props: {
+        onClick: this.handleClick
+      },
       children: `props: ${this.title} setupState: ${this.msg.value}`  //  在 render 函数内部使用 组价状态
     }
   }
@@ -118,7 +160,10 @@ const vnode = {
   type: MyComponent,
   props: {
     title: 'A big title',
-    other: 'other val'
+    other: 'other val',
+    onClick() {
+      alert('hi')
+    }
   }
 }
 

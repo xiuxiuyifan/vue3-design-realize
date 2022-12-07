@@ -376,9 +376,23 @@ function createRenderer(options) {
       // 组件渲染的内容，既子树
       subTree: null
     }
+    // 定义 emit 函数
+    function emit(event, ...payload) {
+      // 根据约定的事件名称 获取 props 中的函数并调用
+      //  click => onClick
+      const eventName = `on${event[0].toUpperCase() + event.slice(1)}`
+      // 从 props 中取出对应的函数
+      const handler = instance.props[eventName]
+      if (handler) {
+        handler(...payload)
+      } else {
+        console.log('事件不存在')
+      }
+    }
     // 定义一个 setupContext 对象
     const setupContext = {
-      attrs
+      attrs,
+      emit
     }
     // 调用 setup 函数, 并获取结果
     const setupResult = setup(shallowReactive(props), setupContext)
@@ -515,7 +529,8 @@ function createRenderer(options) {
     // 遍历用户组件中定义的 props
     for (let key in propsData) {
       // 如果在用户定义的 props 里面，则将其收集到 props 里面 去
-      if (key in options) {
+      // 以 on 开头的 props 也加入到 props 中去
+      if (key in options || key.startsWith('on')) {
         props[key] = propsData[key]
       } else {
         // 否则将其收集到 attrs 里面其

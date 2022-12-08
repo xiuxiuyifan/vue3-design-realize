@@ -75,6 +75,23 @@ function queueJob(job) {
     })
   }
 }
+
+// 全局变量，存储当前正在被初始化的组件实例
+let currentInstance = null
+
+// 设置全局的 currentInstance 变量
+function setCurrentInstance(instance) {
+  currentInstance = instance
+}
+
+export function onMounted(fn) {
+  if (currentInstance) {
+    // 将生命周期函数 push 到实例的 mounted 数组里面
+    currentInstance.mounted.push(fn)
+  } else {
+    console.log('onMounted 函数只能在 setup 中调用')
+  }
+}
 function createRenderer(options) {
 
   const {
@@ -342,7 +359,6 @@ function createRenderer(options) {
     }
   }
 
-
   function mountComponent(vnode, container, anchor) {
     // 通过 vnode 获取组建的选项对象
     const componentOptions = vnode.type
@@ -377,7 +393,9 @@ function createRenderer(options) {
       isMounted: false,
       // 组件渲染的内容，既子树
       subTree: null,
-      slots
+      slots,
+      // 存储组件注册 的 onMount 声明周期函数
+      mounted: []
     }
     // 定义 emit 函数
     function emit(event, ...payload) {
@@ -398,8 +416,12 @@ function createRenderer(options) {
       emit,
       slots
     }
+    // 在 setup 函数调用之前，设置当前组件实例
+    setCurrentInstance(instance)
     // 调用 setup 函数, 并获取结果
     const setupResult = setup(shallowReactive(props), setupContext)
+    // setup 函数执行完毕之后要重置 组件实例
+    setCurrentInstance(null)
     // 保存 setup 返回的数据
     let setupState = null
     // 判断 setup 函数返回值的类型
@@ -469,6 +491,8 @@ function createRenderer(options) {
         instance.isMounted = true
         // patch 之后调用 mounted
         mounted && mounted.call(renderContext)
+        // 遍历注册在 instance 上面的 生命周期钩子函数
+        instance.mounted && instance.mounted.forEach(hook => hook.call(renderContext))
       } else {
         // 打补丁之前
         beforeUpdate && beforeUpdate.call(renderContext)

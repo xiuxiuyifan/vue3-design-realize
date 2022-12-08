@@ -1,5 +1,5 @@
 import { ref } from "./reactivity"
-import { Fragment, renderer } from "./renderer"
+import { Fragment, onMounted, renderer } from "./renderer"
 
 // const MyComponent = {
 //   name: 'MyComponent',
@@ -171,60 +171,89 @@ import { Fragment, renderer } from "./renderer"
 
 
 
-// 实现 slot
-const MyComponent = {
-  name: 'MyComponent',
-  props: {
-    title: String
-  },
-  setup(props, { emit }) {
-  },
-  data() {
-    return {}
-  },
-  render() {
-    return {
-      type: Fragment,
-      children: [
-        {
-          type: 'header',
-          children: [this.$slots.header()]
-        },
-        {
-          type: 'body',
-          children: [this.$slots.body()]
-        },
-        {
-          type: 'footer',
-          children: [this.$slots.footer()]
-        }
-      ]
-    }
-  }
-}
+// // 实现 slot
+// const MyComponent = {
+//   name: 'MyComponent',
+//   props: {
+//     title: String
+//   },
+//   setup(props, { emit }) {
+//   },
+//   data() {
+//     return {}
+//   },
+//   render() {
+//     return {
+//       type: Fragment,
+//       children: [
+//         {
+//           type: 'header',
+//           children: [this.$slots.header()]
+//         },
+//         {
+//           type: 'body',
+//           children: [this.$slots.body()]
+//         },
+//         {
+//           type: 'footer',
+//           children: [this.$slots.footer()]
+//         }
+//       ]
+//     }
+//   }
+// }
 
-// 用来描述组件的 vnode 对象， type 属性值为组件的选项对象
-// 只有当 vnode 的 type 本身是一个对象的时候，本身渲染一个组件，然后接受 儿子渲染 slot
+// // 用来描述组件的 vnode 对象， type 属性值为组件的选项对象
+// // 只有当 vnode 的 type 本身是一个对象的时候，本身渲染一个组件，然后接受 儿子渲染 slot
+// const vnode = {
+//   type: {
+//     data() {
+//       return {}
+//     },
+//     setup() { },
+//     render() {
+//       return {
+//         type: MyComponent,
+//         children: {
+//           header() {
+//             return { type: 'h1', children: '我是头部' }
+//           },
+//           body() {
+//             return { type: 'section', children: '我是body' }
+//           },
+//           footer() {
+//             return { type: 'p', children: '我是footer' }
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+
+// renderer.render(vnode, document.getElementById('root'))
+
+
+
 const vnode = {
   type: {
     data() {
       return {}
     },
-    setup() { },
+    setup() {
+      onMounted(() => {
+        console.log('组件生命周期1')
+      })
+      onMounted(() => {
+        console.log('组件生命周期2')
+      })
+      onMounted(() => {
+        console.log('组件生命周期3')
+      })
+    },
     render() {
       return {
-        type: MyComponent,
-        children: {
-          header() {
-            return { type: 'h1', children: '我是头部' }
-          },
-          body() {
-            return { type: 'section', children: '我是body' }
-          },
-          footer() {
-            return { type: 'p', children: '我是footer' }
-          }
-        }
+        type: 'h1',
+        children: 'hello'
       }
     }
   }

@@ -19,7 +19,10 @@ const App = {
     }
 
     const error = {
+      setup(props) {
+      },
       render() {
+        console.log(this)
         return 'error'
       }
     }
@@ -32,7 +35,7 @@ const App = {
     const t2 = defineAsyncComponent({
       loader: () => import('./Foo.js'),  // 要动态加载的组价
       loadingComponent: loadingComp, // loading 组件
-      timeout: 100,  // 超时时间  单位为 ms
+      timeout: 10000,  // 超时时间  单位为 ms
       errorComponent: errorComp  // 指定加载出错时要渲染的组件
     })
     return h(t2)

@@ -350,6 +350,9 @@ function createRenderer(options) {
       // 逐一卸载 Fragment 的真实子节点
       vnode.children.forEach(c => unmount(c))
       return
+    } else if (typeof vnode.type === 'object') {
+      // 对于组件的卸载，本质上是要卸载组件所渲染的内容，既 subTree
+      unmount(vnode.component.subTree)
     }
     // 获取真实 DOM 的父元素
     const parent = vnode.el.parentNode

@@ -20,6 +20,37 @@ function defineAsyncComponent(options) {
   const { loader } = options
   let InnerComp = null
 
+  // 记录重试次数
+  let retries = 0
+
+  // 封装 load 函数用老加载异步组件
+  function load() {
+    return loader()
+      // 捕获加载器的错误
+      .catch((err) => {
+        if (options.onError) {
+          // 返回一个新的 promise 实例
+          return new Promise((resolve, reject) => {
+            const retry = () => {
+              // 调用 retry 函数的时候重新执行 retry 函数重新加载组件
+              if (retries < 10) {
+                resolve(load())
+                retries++
+              } else {
+                reject(`重试了${retries}次，还是失败了！`)
+              }
+            }
+            const fail = () => reject(err)
+            // 发生失败的时候调用用户传递的 onError 函数,并且把 重试函数 失败函数 和重试次数交给用户来控制
+            options.onError(retry, fail, retries)
+          })
+        } else {
+          // 如果用户没有写出错时候的处理逻辑，则直接抛出错误
+          throw err
+        }
+      })
+  }
+
   return {
     name: 'AsyncComponentWrapper',
     setup() {
@@ -44,8 +75,8 @@ function defineAsyncComponent(options) {
         loading.value = true
       }
 
-      // 调用 loader 函数进行加载
-      loader()
+      // 调用 load 函数进行加载
+      load()
         .then(c => {
           // 加载完成，改变响应式数据触发冲新渲染
           InnerComp = c.default

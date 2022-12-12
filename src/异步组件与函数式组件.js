@@ -1,6 +1,6 @@
 
 // import App from './App.js'
-// import { Fragment, onMounted, renderer } from "./renderer"
+import { Fragment, onMounted, renderer } from "./renderer"
 import { createApp } from 'vue'
 import App from './App'
 
@@ -24,4 +24,24 @@ import App from './App'
 //     })
 // }, 1000);
 
-createApp(App).mount(document.getElementById('root'))
+// createApp(App).mount(document.getElementById('root'))
+
+
+function MyFuncComp(props) {
+    return {
+        type: 'h1',
+        children: props.title
+    }
+}
+
+MyFuncComp.props = {
+    title: String
+}
+
+
+renderer.render({
+    type: MyFuncComp,
+    props: {
+        title: 'title'
+    }
+}, document.getElementById('root'))  // 同步事件组建的渲染

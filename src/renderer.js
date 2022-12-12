@@ -363,8 +363,29 @@ function createRenderer(options) {
   }
 
   function mountComponent(vnode, container, anchor) {
+    // 检测是否是函数式组件
+    const isFunctional = typeof vnode.type === 'function'
+
     // 通过 vnode 获取组建的选项对象
-    const componentOptions = vnode.type
+    let componentOptions = vnode.type
+    // 如果是函数式组件
+    if (isFunctional) {
+      // 如果是函数式组件
+      componentOptions = {
+        render: vnode.type,
+        props: vnode.props
+      }
+      const {
+        render,
+        props,
+      } = componentOptions
+      effect(() => {
+        // 调用组件的 渲染函数 获得子树
+        const subTree = render.call(null, props)
+        patch(null, subTree, container, anchor)
+      })
+      return
+    }
     // 从组件对象的属性上 拿到 render 函数
     const {
       render,
@@ -620,7 +641,10 @@ function createRenderer(options) {
         // 如果有老节点，则需要更新 Fragment 的 children 即可
         patchChildren(n1, n2, container)
       }
-    } else if (typeof type === 'object') {
+    }
+    // type 是 object 组件是有状态组件
+    // type 是 function 组件是函数式组件
+    else if (typeof type === 'object' || typeof type === 'function') {
       // 如果 vnode 的类型是 对象则说明要渲染 组件
       if (!n1) {
         // 没有老节点，则说明是挂载
